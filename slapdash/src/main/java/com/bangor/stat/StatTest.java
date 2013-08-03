@@ -1,4 +1,4 @@
-package com.bangor.slapdash;
+package com.bangor.stat;
 
 import java.io.IOException;
 import java.util.*;
@@ -9,25 +9,50 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 
-public class WordCount {
+public class StatTest {
 
     public static class Map extends MapReduceBase implements Mapper<LongWritable, Text, Text, IntWritable> {
 
         private final static IntWritable one = new IntWritable(1);
         private Text word = new Text();
 
+        /**
+         * Maps each number into an initial key/value pair
+         * This method will ignore any non-numbers (e.g. letters/grammar)
+         * @param key - initial key
+         * @param value - initial value
+         * @param output - map of output
+         * @param reporter - reporter
+         * @throws IOException 
+         */
         public void map(LongWritable key, Text value, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
             String line = value.toString();
-            StringTokenizer tokenizer = new StringTokenizer(line);
-            while (tokenizer.hasMoreTokens()) {
-                word.set(tokenizer.nextToken());
-                output.collect(word, one);
+//            StringTokenizer tokenizer = new StringTokenizer(line);
+//            while (tokenizer.hasMoreTokens()) {
+//                word.set(tokenizer.nextToken());
+//                output.collect(word, one);
+//            }
+
+            String[] lineArr = line.split("");
+            for (String string : lineArr) {
+                if (string.matches("-?\\d+(\\.\\d+)?")) {
+                    word.set(string);
+                    output.collect(word, one);
+                }
             }
         }
     }
 
     public static class Reduce extends MapReduceBase implements Reducer<Text, IntWritable, Text, IntWritable> {
 
+        /**
+         * Reduce the key,value pair into groups.
+         * @param key - key to group
+         * @param values - values of each key
+         * @param output - output map of Map<Text, Intwriteable>
+         * @param reporter - reporter
+         * @throws IOException 
+         */
         public void reduce(Text key, Iterator<IntWritable> values, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
             int sum = 0;
             while (values.hasNext()) {
@@ -38,7 +63,7 @@ public class WordCount {
     }
 
     public static void main(String[] args) throws Exception {
-        JobConf conf = new JobConf(WordCount.class);
+        JobConf conf = new JobConf(StatTest.class);
         conf.setJobName("wordcount");
 
         conf.setOutputKeyClass(Text.class);
