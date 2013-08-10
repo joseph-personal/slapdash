@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.math.MathException;
@@ -17,7 +18,7 @@ import org.apache.commons.math.stat.inference.ChiSquareTestImpl;
  *
  * @author hduser
  */
-public class ChiSquare{
+public class ChiSquare {
 
     private final ChiSquareTestImpl chiSquareTest;
     private Double double_significance;
@@ -32,12 +33,20 @@ public class ChiSquare{
     public static void main(String[] args) {
 
         double significance = 0.01;
-        double[] expected = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-        
-//        long[] observed = {0, 0, 0, 0, 0, 0, 0, 0, 0, 50};
-        long[] observed = {5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
+        double[] expectedCount = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
-        ChiSquare chiSquareCalc = new ChiSquare(observed, expected, significance);
+        long[] observedCount = {0, 0, 0, 0, 0, 0, 0, 0, 0, 50};
+//        long[] observedCount = {5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
+        
+//        long[] observedCount = new long[10];
+//        
+//        Random RG = new Random();
+//        for (int i = 0; i < 10; i++) {
+//            int randInt = RG.nextInt(10);
+//            observedCount[randInt] += 1;
+//        }
+
+        ChiSquare chiSquareCalc = new ChiSquare(observedCount, expectedCount, significance);
 
         boolean doesPass = false;
         try {
@@ -52,6 +61,8 @@ public class ChiSquare{
         } catch (ArrayLengthNotEqualException ex) {
             Logger.getLogger(ChiSquare.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        System.out.println("***\nEND OF TEST\n***");
     }
 
     /**
@@ -156,7 +167,8 @@ public class ChiSquare{
      * EVALUATES CHI SQUARE BASED ON GETS/SETS FOR EXPECTED/OCCURRED VALUES OF
      * THIS CLASS
      *
-     * @param expectedCounts - an array of doubles containing the expected values
+     * @param expectedCounts - an array of doubles containing the expected
+     * values
      * @param significance - the significance to test with
      * @return - whether the values pass or fail at this significance
      * @throws IllegalArgumentException - from ChiSquareTest

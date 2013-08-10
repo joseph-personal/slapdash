@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.util.*;
 
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.conf.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 
-public class StatTest {
+public class SerialTest {
 
     public static class Map extends MapReduceBase implements Mapper<LongWritable, Text, Text, IntWritable> {
 
@@ -63,21 +62,48 @@ public class StatTest {
     }
 
     public static void main(String[] args) throws Exception {
-        JobConf conf = new JobConf(StatTest.class);
+        JobConf conf = new JobConf(FrequencyTest.class);
         conf.setJobName("wordcount");
 
         conf.setOutputKeyClass(Text.class);
         conf.setOutputValueClass(IntWritable.class);
 
-        conf.setMapperClass(Map.class);
-        conf.setCombinerClass(Reduce.class);
-        conf.setReducerClass(Reduce.class);
+        conf.setMapperClass(FrequencyTest.Map.class);
+        conf.setCombinerClass(FrequencyTest.Reduce.class);
+        conf.setReducerClass(FrequencyTest.Reduce.class);
 
         conf.setInputFormat(TextInputFormat.class);
         conf.setOutputFormat(TextOutputFormat.class);
-
+        
         FileInputFormat.setInputPaths(conf, new Path(args[0]));
         FileOutputFormat.setOutputPath(conf, new Path(args[1]));
+
+        JobClient.runJob(conf);
+    }
+
+    /**
+     * RUNS A FREQUENCY-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE.
+     * OUTPUT IS SET TO THE OUTPUT FILE
+     * @param input - Input file of data.
+     * @param output - file to output reduce data to
+     * @throws Exception 
+     */
+    public void test(String input, String output) throws Exception {
+        JobConf conf = new JobConf(FrequencyTest.class);
+        conf.setJobName("wordcount");
+
+        conf.setOutputKeyClass(Text.class);
+        conf.setOutputValueClass(IntWritable.class);
+
+        conf.setMapperClass(FrequencyTest.Map.class);
+        conf.setCombinerClass(FrequencyTest.Reduce.class);
+        conf.setReducerClass(FrequencyTest.Reduce.class);
+
+        conf.setInputFormat(TextInputFormat.class);
+        conf.setOutputFormat(TextOutputFormat.class);
+        
+        FileInputFormat.setInputPaths(conf, new Path(input));
+        FileOutputFormat.setOutputPath(conf, new Path(output));
 
         JobClient.runJob(conf);
     }
