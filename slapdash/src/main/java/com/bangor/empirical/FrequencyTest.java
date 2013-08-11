@@ -1,4 +1,4 @@
-package com.bangor.stat;
+package com.bangor.empirical;
 
 import java.io.IOException;
 import java.util.*;

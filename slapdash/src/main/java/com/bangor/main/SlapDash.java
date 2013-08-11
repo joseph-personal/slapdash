@@ -1,7 +1,7 @@
 package com.bangor.main;
 
-import com.bangor.general.Evaluator;
-import com.bangor.stat.FrequencyTest;
+import com.bangor.evaluation.Evaluator;
+import com.bangor.empirical.FrequencyTest;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;

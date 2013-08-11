@@ -1,4 +1,4 @@
-package com.bangor.general;
+package com.bangor.evaluation;
 
 import com.bangor.exception.IntegerNotValidException;
 import java.util.ArrayList;
