@@ -1,4 +1,4 @@
-package com.bangor.stat;
+package com.bangor.empirical;
 
 import java.io.IOException;
 import java.util.*;
@@ -10,7 +10,7 @@ import org.apache.hadoop.util.*;
 
 public class SerialTest {
 
-    public static class Map extends MapReduceBase implements Mapper<LongWritable, Text, Text, IntWritable> {
+    public static class DoublePatternMap extends MapReduceBase implements Mapper<LongWritable, Text, Text, IntWritable> {
 
         private final static IntWritable one = new IntWritable(1);
         private Text word = new Text();
@@ -33,11 +33,13 @@ public class SerialTest {
 //            }
 
             String[] lineArr = line.split("");
-            for (String string : lineArr) {
+            for (int i = 0; i < lineArr.length; i+=2) {
+                String string = lineArr[i] + lineArr[i+1];
                 if (string.matches("-?\\d+(\\.\\d+)?")) {
                     word.set(string);
                     output.collect(word, one);
                 }
+                
             }
         }
     }
@@ -62,15 +64,15 @@ public class SerialTest {
     }
 
     public static void main(String[] args) throws Exception {
-        JobConf conf = new JobConf(FrequencyTest.class);
+        JobConf conf = new JobConf(SerialTest.class);
         conf.setJobName("wordcount");
 
         conf.setOutputKeyClass(Text.class);
         conf.setOutputValueClass(IntWritable.class);
 
-        conf.setMapperClass(FrequencyTest.Map.class);
-        conf.setCombinerClass(FrequencyTest.Reduce.class);
-        conf.setReducerClass(FrequencyTest.Reduce.class);
+        conf.setMapperClass(DoublePatternMap.class);
+        conf.setCombinerClass(Reduce.class);
+        conf.setReducerClass(Reduce.class);
 
         conf.setInputFormat(TextInputFormat.class);
         conf.setOutputFormat(TextOutputFormat.class);
@@ -82,22 +84,22 @@ public class SerialTest {
     }
 
     /**
-     * RUNS A FREQUENCY-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE.
+     * RUNS A SERIAL-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE.
      * OUTPUT IS SET TO THE OUTPUT FILE
      * @param input - Input file of data.
      * @param output - file to output reduce data to
      * @throws Exception 
      */
     public void test(String input, String output) throws Exception {
-        JobConf conf = new JobConf(FrequencyTest.class);
+        JobConf conf = new JobConf(SerialTest.class);
         conf.setJobName("wordcount");
 
         conf.setOutputKeyClass(Text.class);
         conf.setOutputValueClass(IntWritable.class);
 
-        conf.setMapperClass(FrequencyTest.Map.class);
-        conf.setCombinerClass(FrequencyTest.Reduce.class);
-        conf.setReducerClass(FrequencyTest.Reduce.class);
+        conf.setMapperClass(DoublePatternMap.class);
+        conf.setCombinerClass(Reduce.class);
+        conf.setReducerClass(Reduce.class);
 
         conf.setInputFormat(TextInputFormat.class);
         conf.setOutputFormat(TextOutputFormat.class);
