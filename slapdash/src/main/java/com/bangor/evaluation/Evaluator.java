@@ -49,6 +49,12 @@ public class Evaluator {
     }
     
     public boolean evaluate() throws IllegalArgumentException, MathException, ParameterNotValidException, ArrayLengthNotEqualException{
+        
+        System.out.println("Expected");
+        printDoubleArray(doubleArr_expectedCount);
+        System.out.println("Observed");
+        printLongArray(longArr_observedCount);
+        
         if(string_evaluationMethod.equalsIgnoreCase("-Ch")){
             ChiSquare chiSquareTest = new ChiSquare(longArr_observedCount, 
                     doubleArr_expectedCount, double_significance);
@@ -69,8 +75,11 @@ public class Evaluator {
             br = new BufferedReader(new FileReader(string_filePath));
 
             while ((sCurrentLine = br.readLine()) != null) {
-                int catNum = Integer.parseInt(sCurrentLine.substring(0, 1));
-                int catAmount = Integer.parseInt(sCurrentLine.substring(1, sCurrentLine.length()).trim());
+                String[] splitCurrentLine = sCurrentLine.split("\\t");
+                //TODO: allow catnum to calculate catNum bsaed on double cat
+                int catNum = Integer.parseInt(splitCurrentLine[0].trim());
+//                int catNum = Integer.parseInt("gfdhfdgdfgd");
+                int catAmount = Integer.parseInt(splitCurrentLine[splitCurrentLine.length-1].trim());
 
                 doubleArr_observedCategories[catNum] = catAmount;
             }
@@ -105,6 +114,16 @@ public class Evaluator {
         this.string_evaluationMethod = string_evaluationMethod;
     }
 
-    
+    private void printDoubleArray(double[] arrToPrint){
+        for (int i = 0; i < arrToPrint.length; i++) {
+            System.out.println("["+i+"] " + arrToPrint[i]);
+        }
+    }
+
+    private void printLongArray(long[] arrToPrint){
+        for (int i = 0; i < arrToPrint.length; i++) {
+            System.out.println("["+i+"] " + arrToPrint[i]);
+        }
+    }
     
 }

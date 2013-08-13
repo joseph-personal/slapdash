@@ -1,6 +1,5 @@
 package com.bangor.empirical;
 
-import com.bangor.exception.IntegerNotValidException;
 import java.io.IOException;
 import java.util.*;
 
@@ -9,17 +8,19 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 
-public class SerialTest {
+public class GapTest {
 
     public static class Map extends MapReduceBase implements Mapper<LongWritable, Text, Text, IntWritable> {
 
         private final static IntWritable one = new IntWritable(1);
         private Text word = new Text();
-        private int iPatternLength;
+        private double dLowerLimit;
+        private double dUpperLimit;
 
         @Override
         public void configure(JobConf conf) {
-            iPatternLength = Integer.parseInt(conf.get("iPatternLength"));
+            dLowerLimit = Double.parseDouble(conf.get("dLowerLimit"));
+            dUpperLimit = Double.parseDouble(conf.get("dUpperLimit"));
         }
 
         /**
@@ -33,22 +34,40 @@ public class SerialTest {
          * @throws IOException
          */
         public void map(LongWritable key, Text value, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
+            //values as string
             String data = value.toString();
 
+            //TODO: CHANGE THIS FOR ALL TESTS TO ALLOW DECIMAL PLACE NUMBERS
+            //split each individual datum into an array
             String[] dataArr = data.split("");
+
+            //loop through dataArray checking for an entry that's between limits
             for (int i = 0; i < dataArr.length; i++) {
-                String string = "";
+                //if it's a digit
+                if (dataArr[i].matches("-?\\d+(\\.\\d+)?")) {
+                    //convert string to double
+                    double dThisRandomNumber = Double.parseDouble(dataArr[i]);
+                    
+                    //variable to specify the length of this gap
+                    Integer iGapLength = 0;
 
-                for (int j = 0; j < iPatternLength; j++) {
-                    string += dataArr[i + j];
-                }
-
-                //validity check that it is a number
-                if (string.matches("-?\\d+(\\.\\d+)?")) {
-                    word.set(string);
+                    //if this random number is between limits
+                    if (dThisRandomNumber >= dLowerLimit && dThisRandomNumber <= dUpperLimit) {
+                        
+                        //boolean for whether this variable is between limits
+                        boolean bInRange = false;
+                        for (int j = i; !bInRange; j++) {
+                            double dRandomNumberToCheck = Double.parseDouble(dataArr[j]);
+                            //if the variable we are checking is not in range
+                            if ((dRandomNumberToCheck >= dLowerLimit && dRandomNumberToCheck <= dUpperLimit)) {
+                                bInRange = true;
+                            }
+                            iGapLength++;
+                        }
+                    }
+                    word.set(iGapLength.toString());
                     output.collect(word, one);
                 }
-
             }
         }
     }
@@ -74,18 +93,21 @@ public class SerialTest {
     }
 
     /**
-     * RUNS A SERIAL-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE. OUTPUT
-     * IS SET TO THE OUTPUT FILE
+     * RUNS A FREQUENCY-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE.
+     * OUTPUT IS SET TO THE OUTPUT FILE
      *
-     * @param iPatternLength
      * @param sInput - Input file of data.
      * @param sOutput - file to output reduce data to
+     * @param dLowerLimit
+     * @param dUpperRange
+     * @return
      * @throws Exception
      */
-    public JobConf test(Integer iPatternLength, String sInput, String sOutput) throws Exception {
-        JobConf conf = new JobConf(SerialTest.class);
-        conf.setJobName("serialTest");
-        conf.set("iPatternLength", iPatternLength.toString());
+    public JobConf test(String sInput, String sOutput, Double dLowerLimit, Double dUpperRange) throws Exception {
+        JobConf conf = new JobConf(GapTest.class);
+        conf.setJobName("freqTest");
+        conf.set("dLowerRange", dLowerLimit.toString());
+        conf.set("dHigherRange", dUpperRange.toString());
 
         conf.setOutputKeyClass(Text.class);
         conf.setOutputValueClass(IntWritable.class);
