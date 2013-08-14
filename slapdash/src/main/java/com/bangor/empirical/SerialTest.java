@@ -35,21 +35,25 @@ public class SerialTest {
         public void map(LongWritable key, Text value, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
             String data = value.toString();
 
-            String[] dataArr = data.split("");
+            String[] dataArr = data.split("\n");
+            System.out.println("*******");
+            System.out.println("dataArr.length = " + dataArr.length);
             for (int i = 0; i < dataArr.length; i++) {
-                String string = "";
-
+                System.out.println("dataArr[i] = " + dataArr[i]);
+                String sThisPattern = "";
                 for (int j = 0; j < iPatternLength; j++) {
-                    string += dataArr[i + j];
+                    sThisPattern += dataArr[i + j];
                 }
 
                 //validity check that it is a number
-                if (string.matches("-?\\d+(\\.\\d+)?")) {
-                    word.set(string);
+                if (sThisPattern.matches("-?\\d+(\\.\\d+)?")) {
+                    word.set(sThisPattern);
                     output.collect(word, one);
                 }
 
             }
+            System.out.println("dataArr.length = " + dataArr.length);
+            System.out.println("*******");
         }
     }
 

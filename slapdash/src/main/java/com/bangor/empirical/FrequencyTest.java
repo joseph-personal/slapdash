@@ -32,7 +32,7 @@ public class FrequencyTest {
 //                output.collect(word, one);
 //            }
 
-            String[] lineArr = line.split("");
+            String[] lineArr = line.split("\n");
             for (String string : lineArr) {
                 if (string.matches("-?\\d+(\\.\\d+)?")) {
                     word.set(string);
