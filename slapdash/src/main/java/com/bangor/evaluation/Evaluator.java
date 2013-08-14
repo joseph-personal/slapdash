@@ -50,10 +50,10 @@ public class Evaluator {
     
     public boolean evaluate() throws IllegalArgumentException, MathException, ParameterNotValidException, ArrayLengthNotEqualException{
         
-        System.out.println("Expected");
-        printDoubleArray(doubleArr_expectedCount);
-        System.out.println("Observed");
-        printLongArray(longArr_observedCount);
+//        System.out.println("Expected");
+//        printDoubleArray(doubleArr_expectedCount);
+//        System.out.println("Observed");
+//        printLongArray(longArr_observedCount);
         
         if(string_evaluationMethod.equalsIgnoreCase("-Ch")){
             ChiSquare chiSquareTest = new ChiSquare(longArr_observedCount, 
@@ -76,7 +76,7 @@ public class Evaluator {
 
             while ((sCurrentLine = br.readLine()) != null) {
                 String[] splitCurrentLine = sCurrentLine.split("\\t");
-                //TODO: allow catnum to calculate catNum bsaed on double cat
+                //TODO: allow catnum to calculate catNum bsaed on double cat, think this is done
                 int catNum = Integer.parseInt(splitCurrentLine[0].trim());
 //                int catNum = Integer.parseInt("gfdhfdgdfgd");
                 int catAmount = Integer.parseInt(splitCurrentLine[splitCurrentLine.length-1].trim());
