@@ -1,15 +1,13 @@
 package com.bangor.empirical;
 
-import com.bangor.exception.IntegerNotValidException;
 import java.io.IOException;
 import java.util.*;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.util.*;
 
-public class SerialTest {
+public class SerialTestOldAPI {
 
     public static class Map extends MapReduceBase implements Mapper<LongWritable, Text, Text, IntWritable> {
 
@@ -35,9 +33,10 @@ public class SerialTest {
         public void map(LongWritable key, Text value, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
             String data = value.toString();
 
-            String[] dataArr = data.split("\n");
+            String[] dataArr = data.split(" ");
             System.out.println("*******");
             System.out.println("dataArr.length = " + dataArr.length);
+            System.out.println("value = " + value.toString());
             for (int i = 0; i < dataArr.length; i++) {
                 System.out.println("dataArr[i] = " + dataArr[i]);
                 String sThisPattern = "";
@@ -52,8 +51,6 @@ public class SerialTest {
                 }
 
             }
-            System.out.println("dataArr.length = " + dataArr.length);
-            System.out.println("*******");
         }
     }
 
@@ -84,10 +81,11 @@ public class SerialTest {
      * @param iPatternLength
      * @param sInput - Input file of data.
      * @param sOutput - file to output reduce data to
+     * @return 
      * @throws Exception
      */
     public JobConf test(Integer iPatternLength, String sInput, String sOutput) throws Exception {
-        JobConf conf = new JobConf(SerialTest.class);
+        JobConf conf = new JobConf(SerialTestOldAPI.class);
         conf.setJobName("serialTest");
         conf.set("iPatternLength", iPatternLength.toString());
 

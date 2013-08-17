@@ -8,7 +8,7 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 
-public class FrequencyTest {
+public class FrequencyTestOldAPI {
 
     public static class Map extends MapReduceBase implements Mapper<LongWritable, Text, Text, IntWritable> {
 
@@ -62,7 +62,7 @@ public class FrequencyTest {
     }
 
     public static void main(String[] args) throws Exception {
-        JobConf conf = new JobConf(FrequencyTest.class);
+        JobConf conf = new JobConf(FrequencyTestOldAPI.class);
         conf.setJobName("freqTest");
 
         conf.setOutputKeyClass(Text.class);
@@ -89,7 +89,7 @@ public class FrequencyTest {
      * @throws Exception 
      */
     public JobConf test(String input, String output) throws Exception {
-        JobConf conf = new JobConf(FrequencyTest.class);
+        JobConf conf = new JobConf(FrequencyTestOldAPI.class);
         conf.setJobName("freqTest");
 
         conf.setOutputKeyClass(Text.class);

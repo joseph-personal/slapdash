@@ -1,17 +1,10 @@
 package com.bangor.evaluation;
 
 import com.bangor.exception.ArrayLengthNotEqualException;
-import com.bangor.exception.IntegerNotValidException;
 import com.bangor.exception.ParameterNotValidException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.math.MathException;
-import org.apache.commons.math.stat.inference.ChiSquareTest;
 import org.apache.commons.math.stat.inference.ChiSquareTestImpl;
 
 /**
@@ -21,9 +14,9 @@ import org.apache.commons.math.stat.inference.ChiSquareTestImpl;
 public class ChiSquare {
 
     private final ChiSquareTestImpl chiSquareTest;
-    private Double double_significance;
-    private double[] doubleArr_expectedCounts;
-    private long[] longArr_observedCounts;
+    private Double dSignificance;
+    private double[] darrExpectedCounts;
+    private long[] larrObservedCounts;
 
     /**
      * created for testing class
@@ -37,7 +30,7 @@ public class ChiSquare {
 
         long[] observedCount = {0, 0, 0, 0, 0, 0, 0, 0, 0, 50};
 //        long[] observedCount = {5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
-        
+
 //        long[] observedCount = new long[10];
 //        
 //        Random RG = new Random();
@@ -45,7 +38,6 @@ public class ChiSquare {
 //            int randInt = RG.nextInt(10);
 //            observedCount[randInt] += 1;
 //        }
-
         ChiSquare chiSquareCalc = new ChiSquare(observedCount, expectedCount, significance);
 
         boolean doesPass = false;
@@ -61,7 +53,7 @@ public class ChiSquare {
         } catch (ArrayLengthNotEqualException ex) {
             Logger.getLogger(ChiSquare.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         System.out.println("***\nEND OF TEST\n***");
     }
 
@@ -75,36 +67,36 @@ public class ChiSquare {
     /**
      * SETS THE SIGNIFICANCE OF THE TEST
      *
-     * @param significance - the significance (or confidence) of the test
+     * @param dSignificance - the significance (or confidence) of the test
      */
-    public ChiSquare(double significance) {
-        this.double_significance = significance;
+    public ChiSquare(double dSignificance) {
+        this.dSignificance = dSignificance;
         chiSquareTest = new ChiSquareTestImpl();
     }
 
     /**
      * SETS THE EXPECTED VALUES AND SIGNIFICANCE OF THE TEST
      *
-     * @param expectedCounts - the expected values of the test
-     * @param significance - the significance (or confidence) of the test
+     * @param darrExpectedCounts - the expected values of the test
+     * @param dSignificance - the significance (or confidence) of the test
      */
-    public ChiSquare(double[] expectedCounts, double significance) {
-        this.doubleArr_expectedCounts = expectedCounts;
-        this.double_significance = significance;
+    public ChiSquare(double[] darrExpectedCounts, double dSignificance) {
+        this.darrExpectedCounts = darrExpectedCounts;
+        this.dSignificance = dSignificance;
         chiSquareTest = new ChiSquareTestImpl();
     }
 
     /**
      * SETS THE OCCURRED VALUES, EXPECTED VALUES AND SIGNIFICANCE OF THE TEST
      *
-     * @param observedCounts - the occurred values of the generator
-     * @param expectedCounts - the expected values of the test
-     * @param significance - the significance (or confidence) of the test
+     * @param larrObservedCounts - the occurred values of the generator
+     * @param darrExpectedCounts - the expected values of the test
+     * @param dSignificance - the significance (or confidence) of the test
      */
-    public ChiSquare(long[] observedCounts, double[] expectedCounts, double significance) {
-        this.longArr_observedCounts = observedCounts;
-        this.doubleArr_expectedCounts = expectedCounts;
-        this.double_significance = significance;
+    public ChiSquare(long[] larrObservedCounts, double[] darrExpectedCounts, double dSignificance) {
+        this.larrObservedCounts = larrObservedCounts;
+        this.darrExpectedCounts = darrExpectedCounts;
+        this.dSignificance = dSignificance;
         chiSquareTest = new ChiSquareTestImpl();
     }
 
@@ -119,9 +111,9 @@ public class ChiSquare {
      */
     public boolean evaluateChiSquare() throws IllegalArgumentException, MathException,
             ParameterNotValidException, ArrayLengthNotEqualException {
-        if (double_significance != null && doubleArr_expectedCounts != null && longArr_observedCounts != null) {
-            if (doubleArr_expectedCounts.length == longArr_observedCounts.length) {
-                return chiSquareTest.chiSquareTest(doubleArr_expectedCounts, longArr_observedCounts, double_significance);
+        if (dSignificance != null && darrExpectedCounts != null && larrObservedCounts != null) {
+            if (darrExpectedCounts.length == larrObservedCounts.length) {
+                return chiSquareTest.chiSquareTest(darrExpectedCounts, larrObservedCounts, dSignificance);
             } else {
                 throw new ArrayLengthNotEqualException("Expected and Observed arrays "
                         + "are not of equal size");
@@ -139,18 +131,20 @@ public class ChiSquare {
      * EVALUATES CHI SQUARE BASED ON GETS/SETS FOR EXPECTED/OCCURRED VALUES OF
      * THIS CLASS
      *
-     * @param significance - the significance to test with
-     * @return - whether the values pass or fail at this significance
-     * @throws IllegalArgumentException - from ChiSquareTest
-     * @throws MathException - from ChiSquareTest
-     * @throws ParameterNotValidException - if no expected or occurred global
-     * vars have not been set
+     * @param dSignificance the significance to test with
+     * @return whether the values pass or fail at this significance
+     * @throws IllegalArgumentException from ChiSquareTest
+     * @throws MathException from ChiSquareTest
+     * @throws ParameterNotValidException if no expected or occurred global vars
+     * have not been set
+     * @throws com.bangor.exception.ArrayLengthNotEqualException if Observed and
+     * Expected Arrays are not of the same length
      */
-    public boolean evaluateChiSquare(double significance) throws IllegalArgumentException,
+    public boolean evaluateChiSquare(double dSignificance) throws IllegalArgumentException,
             MathException, ParameterNotValidException, ArrayLengthNotEqualException {
-        if ((doubleArr_expectedCounts != null && longArr_observedCounts != null)) {
-            if (doubleArr_expectedCounts.length == longArr_observedCounts.length) {
-                return chiSquareTest.chiSquareTest(doubleArr_expectedCounts, longArr_observedCounts, significance);
+        if ((darrExpectedCounts != null && larrObservedCounts != null)) {
+            if (darrExpectedCounts.length == larrObservedCounts.length) {
+                return chiSquareTest.chiSquareTest(darrExpectedCounts, larrObservedCounts, dSignificance);
             } else {
                 throw new ArrayLengthNotEqualException("Expected and Observed arrays "
                         + "are not of equal size");
@@ -167,20 +161,20 @@ public class ChiSquare {
      * EVALUATES CHI SQUARE BASED ON GETS/SETS FOR EXPECTED/OCCURRED VALUES OF
      * THIS CLASS
      *
-     * @param expectedCounts - an array of doubles containing the expected
+     * @param darrExpectedCounts an array of doubles containing the expected
      * values
-     * @param significance - the significance to test with
-     * @return - whether the values pass or fail at this significance
-     * @throws IllegalArgumentException - from ChiSquareTest
-     * @throws MathException - from ChiSquareTest
-     * @throws ParameterNotValidException - if no occurred global vars have not
+     * @param dSignificance the significance to test with
+     * @return whether the values pass or fail at this significance
+     * @throws IllegalArgumentException from ChiSquareTest
+     * @throws MathException from ChiSquareTest
+     * @throws ParameterNotValidException if no occurred global vars have not
      * been set
      */
-    public boolean evaluateChiSquare(double[] expectedCounts, double significance)
+    public boolean evaluateChiSquare(double[] darrExpectedCounts, double dSignificance)
             throws IllegalArgumentException, MathException, ParameterNotValidException, ArrayLengthNotEqualException {
-        if (longArr_observedCounts != null) {
-            if (expectedCounts.length == longArr_observedCounts.length) {
-                return chiSquareTest.chiSquareTest(expectedCounts, longArr_observedCounts, significance);
+        if (larrObservedCounts != null) {
+            if (darrExpectedCounts.length == larrObservedCounts.length) {
+                return chiSquareTest.chiSquareTest(darrExpectedCounts, larrObservedCounts, dSignificance);
             } else {
                 throw new ArrayLengthNotEqualException("Expected and Observed Count arrays "
                         + "are not of equal size");
@@ -196,19 +190,21 @@ public class ChiSquare {
      * EVALUATES CHI SQUARE BASED ON GETS/SETS FOR EXPECTED/OCCURRED VALUES OF
      * THIS CLASS
      *
-     * @param observed - an array of longs containing the observed values
-     * @param significance - the significance to test with
-     * @return - whether the values pass or fail at this significance
-     * @throws IllegalArgumentException - from ChiSquareTest
-     * @throws MathException - from ChiSquareTest
-     * @throws ParameterNotValidException - if no expected global vars have not
+     * @param larrObservedCounts an array of longs containing the observed values
+     * @param dSignificance the significance to test with
+     * @return whether the values pass or fail at this significance
+     * @throws IllegalArgumentException from ChiSquareTest
+     * @throws MathException from ChiSquareTest
+     * @throws ParameterNotValidException if no expected global vars have not
      * been set
+     * @throws com.bangor.exception.ArrayLengthNotEqualExceptionif Observed and
+     * Expected Arrays are not of the same length
      */
-    public boolean evaluateChiSquare(long[] observedCounts, double significance)
+    public boolean evaluateChiSquare(long[] larrObservedCounts, double dSignificance)
             throws IllegalArgumentException, MathException, ParameterNotValidException, ArrayLengthNotEqualException {
-        if (doubleArr_expectedCounts != null) {
-            if (doubleArr_expectedCounts.length == observedCounts.length) {
-                return chiSquareTest.chiSquareTest(doubleArr_expectedCounts, observedCounts, significance);
+        if (darrExpectedCounts != null) {
+            if (darrExpectedCounts.length == larrObservedCounts.length) {
+                return chiSquareTest.chiSquareTest(darrExpectedCounts, larrObservedCounts, dSignificance);
             } else {
                 throw new ArrayLengthNotEqualException("Expected and Observed Count arrays "
                         + "are not of equal size");
@@ -224,8 +220,8 @@ public class ChiSquare {
      * EVALUATES CHI SQUARE BASED ON GETS/SETS FOR EXPECTED/OCCURRED VALUES OF
      * THIS CLASS
      *
-     * @param observed - an array of longs containing the observed values
-     * @param expected - an array of doubles containing the expected values
+     * @param larrObservedCounts - an array of longs containing the observed values
+     * @param darrExpectedCounts - an array of doubles containing the expected values
      * @return - whether the values pass or fail at this significance
      * @throws IllegalArgumentException - from ChiSquareTest
      * @throws MathException - from ChiSquareTest
@@ -234,12 +230,12 @@ public class ChiSquare {
      * @throws ParameterNotValidException - if no expected global vars have not
      * been set
      */
-    public boolean evaluateChiSquare(long[] observedCounts, double[] expectedCounts)
+    public boolean evaluateChiSquare(long[] larrObservedCounts, double[] darrExpectedCounts)
             throws IllegalArgumentException, MathException, ParameterNotValidException, ArrayLengthNotEqualException {
 
-        if (double_significance != null) {
-            if (expectedCounts.length == observedCounts.length) {
-                return chiSquareTest.chiSquareTest(expectedCounts, observedCounts, double_significance);
+        if (dSignificance != null) {
+            if (darrExpectedCounts.length == larrObservedCounts.length) {
+                return chiSquareTest.chiSquareTest(darrExpectedCounts, larrObservedCounts, dSignificance);
             } else {
                 throw new ArrayLengthNotEqualException("Expected and Observed Count arrays "
                         + "are not of equal size");
@@ -255,19 +251,19 @@ public class ChiSquare {
      * EVALUATES CHI SQUARE BASED ON GETS/SETS FOR EXPECTED/OCCURRED VALUES OF
      * THIS CLASS
      *
-     * @param observed - an array of longs containing the observed values
-     * @param expected - an array of doubles containing the expected values
-     * @param significance - the significance to test with
+     * @param larrObservedCounts - an array of longs containing the observed values
+     * @param darrExpectedCounts - an array of doubles containing the expected values
+     * @param dSignificance - the significance to test with
      * @return - whether the values pass or fail at this significance
      * @throws IllegalArgumentException - from ChiSquareTest
      * @throws MathException - from ChiSquareTest
      * @throws ArrayLengthNotEqualException - if local expected and observed
      * arrays are not valid
      */
-    public boolean evaluateChiSquare(long[] observedCounts, double[] expectedCounts, double significance)
+    public boolean evaluateChiSquare(long[] larrObservedCounts, double[] darrExpectedCounts, double dSignificance)
             throws IllegalArgumentException, MathException, ArrayLengthNotEqualException {
-        if (expectedCounts.length == observedCounts.length) {
-            return chiSquareTest.chiSquareTest(expectedCounts, observedCounts, significance);
+        if (darrExpectedCounts.length == larrObservedCounts.length) {
+            return chiSquareTest.chiSquareTest(darrExpectedCounts, larrObservedCounts, dSignificance);
         } else {
             throw new ArrayLengthNotEqualException("Expected and Observed Count arrays "
                     + "are not of equal size");
@@ -280,7 +276,7 @@ public class ChiSquare {
      * @return
      */
     public Double getDouble_significance() {
-        return double_significance;
+        return dSignificance;
     }
 
     /**
@@ -289,7 +285,7 @@ public class ChiSquare {
      * @return
      */
     public double[] getDoubleArr_expectedCounts() {
-        return doubleArr_expectedCounts;
+        return darrExpectedCounts;
     }
 
     /**
@@ -298,7 +294,7 @@ public class ChiSquare {
      * @return
      */
     public long[] getLongArr_observedCounts() {
-        return longArr_observedCounts;
+        return larrObservedCounts;
     }
 
     /**
@@ -307,7 +303,7 @@ public class ChiSquare {
      * @param double_significance
      */
     public void setDouble_significance(Double double_significance) {
-        this.double_significance = double_significance;
+        this.dSignificance = double_significance;
     }
 
     /**
@@ -316,7 +312,7 @@ public class ChiSquare {
      * @param doubleArr_expected
      */
     public void setDoubleArr_expectedCounts(double[] doubleArr_expected) {
-        this.doubleArr_expectedCounts = doubleArr_expected;
+        this.darrExpectedCounts = doubleArr_expected;
     }
 
     /**
@@ -325,6 +321,6 @@ public class ChiSquare {
      * @param longArr_observed
      */
     public void setLongArr_observedCounts(long[] longArr_observed) {
-        this.longArr_observedCounts = longArr_observed;
+        this.larrObservedCounts = longArr_observed;
     }
 }
