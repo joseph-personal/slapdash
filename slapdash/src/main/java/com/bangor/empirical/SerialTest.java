@@ -1,15 +1,13 @@
 package com.bangor.empirical;
 
-import com.bangor.InputFormats.Patterns.PatternInputFormat;
+import com.bangor.InputFormats.Patterns.SerialTestInputFormat;
 import java.io.IOException;
-import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Mapper.Context;
@@ -108,7 +106,7 @@ public class SerialTest {
         job.setCombinerClass(Reduce.class);
         job.setReducerClass(Reduce.class);
         
-        job.setInputFormatClass(PatternInputFormat.class);
+        job.setInputFormatClass(SerialTestInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
 
         FileInputFormat.setInputPaths(job, new Path(sInput));

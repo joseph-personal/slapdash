@@ -17,7 +17,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
  *
  * @author Joseph W Plant
  */
-public class PatternRecordReader extends RecordReader<LongWritable, Text> {
+public class SerialTestRecordReader extends RecordReader<LongWritable, Text> {
 
     //the amount of extra values to add to each mapper, default set in context.get
     private int iBUFFER_SIZE;
@@ -40,7 +40,7 @@ public class PatternRecordReader extends RecordReader<LongWritable, Text> {
      *
      * @param rr the variable to which this.rr will be set
      */
-    public PatternRecordReader(RecordReader<LongWritable, Text> rr) {
+    public SerialTestRecordReader(RecordReader<LongWritable, Text> rr) {
         this.rr = rr;
     }
 
