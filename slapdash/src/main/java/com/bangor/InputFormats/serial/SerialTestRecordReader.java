@@ -1,4 +1,4 @@
-package com.bangor.InputFormats.Patterns;
+package com.bangor.InputFormats.serial;
 
 import java.io.IOException;
 import java.util.Iterator;

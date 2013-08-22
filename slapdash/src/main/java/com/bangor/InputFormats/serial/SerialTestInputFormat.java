@@ -1,4 +1,4 @@
-package com.bangor.InputFormats.Patterns;
+package com.bangor.InputFormats.serial;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;

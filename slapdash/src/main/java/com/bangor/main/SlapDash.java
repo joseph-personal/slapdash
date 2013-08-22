@@ -3,6 +3,7 @@ package com.bangor.main;
 import com.bangor.evaluation.Evaluator;
 import com.bangor.empirical.FrequencyTestOldAPI;
 import com.bangor.empirical.FrequencyTest;
+import com.bangor.empirical.GapTest;
 import com.bangor.empirical.SerialTestOldAPI;
 import com.bangor.empirical.SerialTest;
 import com.bangor.utils.UtilityHadoop;
@@ -70,6 +71,18 @@ public class SlapDash {
 
             boolean bTestPasses = serialTestHandler(iLengthOfPattern, iRange, idegree, dSignificance, sEevaluation, sInput, sOutput);
             System.err.println("Pass: " + bTestPasses);
+        } else if (test.equalsIgnoreCase("-G")) {
+
+            //GET REST OF PARAMETER ARGUMENTS
+            int iRange = Integer.parseInt(args[1]);
+            int idegree = Integer.parseInt(args[2]);
+            String sEevaluation = args[3];
+            double dSignificance = Double.parseDouble(args[4]);
+            String sInput = args[5];
+            String sOutput = args[6];
+
+            boolean bTestPasses = gapTestHandler(iRange, idegree, dSignificance, sEevaluation, sInput, sOutput);
+            System.err.println("Pass: " + bTestPasses);
         }
     }
 
@@ -121,6 +134,32 @@ public class SlapDash {
         System.out.println("***\t\tiLengthOfPattern = " + iLengthOfPattern);
         int numOfCombinations = UtilityMath.getCombinationAmount(iRange, iLengthOfPattern, true, true).intValue();
         double[] expected = new double[numOfCombinations];
+        for (int i = 0; i < expected.length; i++) {
+            expected[i] = 1.0;
+        }
+        Evaluator evaluator = new Evaluator(sEvaluation, localOutput, expected, dSignificance, iRange, iDegree);
+
+        return evaluator.evaluate();
+    }
+/**
+     * Handler for Serial Test
+     * @param iRange Range of generator
+     * @param iDegree the degree to which a number can go
+     * @param sEvaluation the evaluation method to be used
+     * @param dSignificance the significance level to use in evaluation
+     * @param sInput the hadoop input file
+     * @param sOutput the hadoop output file
+     * @return boolean on whether sequence has passed or failed
+     * @throws Exception 
+     */
+    private boolean gapTestHandler(int iRange, int iDegree, double dSignificance, String sEvaluation, String sInput, String sOutput) throws Exception {
+
+        GapTest gTest = new GapTest();
+        Job conf = gTest.test(sInput, sOutput);
+
+        String localOutput = UtilityHadoop.getFileFromHDFS(sOutput + File.separator + sFileName, conf);
+        
+        double[] expected = new double[iRange];
         for (int i = 0; i < expected.length; i++) {
             expected[i] = 1.0;
         }

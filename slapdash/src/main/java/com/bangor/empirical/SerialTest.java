@@ -1,6 +1,6 @@
 package com.bangor.empirical;
 
-import com.bangor.InputFormats.Patterns.SerialTestInputFormat;
+import com.bangor.InputFormats.serial.SerialTestInputFormat;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,6 +79,7 @@ public class SerialTest {
                 Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        
     }
 
     /**
@@ -94,7 +95,7 @@ public class SerialTest {
     public Job test(Integer iPatternLength, String sInput, String sOutput) throws Exception {
 
         Job job = new Job(new Configuration(), "serialTest");
-        job.setJarByClass(SerialTestOldAPI.class);
+        job.setJarByClass(SerialTest.class);
 
         job.getConfiguration().setInt("iPatternLength", iPatternLength);
         job.getConfiguration().setInt("iMapStartPoint", 0);

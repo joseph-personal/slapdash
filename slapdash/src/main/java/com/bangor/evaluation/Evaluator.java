@@ -179,6 +179,7 @@ public class Evaluator {
         //TODO: make this work for patterns of any length (currently only working for patterns of length 2)
         int iCategoryIndex;
 
+        if(pattern.contains(":")){
         //colon is delimiter
         String[] sarrSplitPatternColon = pattern.split(":");
         int firstHalf = (int) (Double.parseDouble(sarrSplitPatternColon[0]) * (double) (iDegree));
@@ -187,6 +188,10 @@ public class Evaluator {
         iCategoryIndex = firstHalf * iRange + secondHalf;
         System.out.println("***\t\tpattern = " + pattern);
         System.out.println("***\t\tCatNum: " + firstHalf + " * " + iRange + " + " + secondHalf + " = " + iCategoryIndex);
+        
+        } else{
+            iCategoryIndex = (int) (Double.parseDouble(pattern) * (double) iDegree);
+        }
         return iCategoryIndex;
     }
 
