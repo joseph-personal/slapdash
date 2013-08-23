@@ -27,6 +27,8 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
     private double dPrevVal = -1;
 
     private boolean bRunUp = true;
+    private boolean bBeginningOfRun = false;
+    private Text tBeginningOfRun;
 
     @Override
     public void close() throws IOException {
@@ -56,6 +58,7 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
 
     @Override
     public void initialize(InputSplit genericSplit, TaskAttemptContext context) throws IOException, InterruptedException {
+        tBeginningOfRun = new Text("");
         FileSplit split = (FileSplit) genericSplit;
         final Path file = split.getPath();
         Configuration conf = context.getConfiguration();
@@ -110,38 +113,61 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
 
         boolean bOnRun = true;
         while (bOnRun) {
-            Text v = new Text();
-            while (pos < end) {
-                System.out.println("in pos loop");
-                newSize = in.readLine(v, maxLineLength, Math.max((int) Math.min(Integer.MAX_VALUE, end - pos), maxLineLength));
 
+            if (!tBeginningOfRun.toString().isEmpty()) {
+                System.out.println("Beginning of new run!");
+                value.append(tBeginningOfRun.getBytes(), 0, tBeginningOfRun.getLength());
+                value.append(endline.getBytes(), 0, endline.getLength());
+                this.dPrevVal = Double.parseDouble(tBeginningOfRun.toString());
+                tBeginningOfRun.set("");
+//                bBeginningOfRun = false;
+            }
+
+            Text v = new Text();
+            if (!(pos < end)) {
+                bOnRun = false;
+                break;
+            }
+            while (pos < end) {
+                System.out.println("in pos loop\n");
+                newSize = in.readLine(v, maxLineLength, Math.max((int) Math.min(Integer.MAX_VALUE, end - pos), maxLineLength));
+                if (newSize == 0) {
+                    break;
+                }
+                pos += newSize;
+                System.out.println("newSize = " + newSize);
                 String sNewValue = new String(v.getBytes());
                 double dNewValue = Double.parseDouble(sNewValue);
                 System.out.println("dNewValue = " + dNewValue);
-                System.out.println("dPrevVal = " + dPrevVal);
+                System.out.println("dPrevVal = " + dPrevVal + "\n");
 
                 boolean bWasRunUp = this.bRunUp;
-                
-                this.bRunUp = dNewValue >= this.dPrevVal;
-                System.out.println("bRunUp = " + bRunUp);
 
-                if (this.bRunUp != bWasRunUp) {
-                    bOnRun = false;
+                this.bRunUp = dNewValue >= this.dPrevVal;
+                System.out.println("dPrevVal = " + dPrevVal);
+                System.out.println("bRunUp = " + bRunUp + "\n");
+
+                System.out.println("bBeginningOfRun = " + bBeginningOfRun + "\n");
+                if (!bBeginningOfRun) {
+                    if (this.bRunUp != bWasRunUp) {
+                        tBeginningOfRun = v;
+                        bOnRun = false;
+                        bBeginningOfRun = true;
+                        System.out.println("breaking out in run checker");
+                        break;
+                    }
                 }
+                bBeginningOfRun = false;
 
                 this.dPrevVal = dNewValue;
 
                 value.append(v.getBytes(), 0, v.getLength());
                 value.append(endline.getBytes(), 0, endline.getLength());
-                if (newSize == 0) {
-                    break;
-                }
-                pos += newSize;
+
                 if (newSize < maxLineLength) {
                     break;
                 }
             }
-                bOnRun = false;
         }
         if (newSize == 0) {
             key = null;
