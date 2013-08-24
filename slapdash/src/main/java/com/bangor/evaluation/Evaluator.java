@@ -116,7 +116,7 @@ public class Evaluator {
 
             while ((sCurrentLine = br.readLine()) != null) {
                 String[] splitCurrentLine = sCurrentLine.split("\\t");
-                
+
                 int catNum = getCategoryIndex(splitCurrentLine[0].trim(), this.iRange, this.iDegree);
                 System.out.println("***\t\tcatNum = " + catNum);
 //                int catNum = Integer.parseInt("gfdhfdgdfgd");
@@ -176,20 +176,30 @@ public class Evaluator {
      * @return returns the category index for this particular pattern
      */
     private int getCategoryIndex(String pattern, int iRange, int iDegree) {
-        //TODO: make this work for patterns of any length (currently only working for patterns of length 2)
-        int iCategoryIndex;
+        //TODO: this won't work if range does not start from 0
+        //TODO: make this check if this amount of patterns is possible. (e.g. does iRange divide by pattern amount with no remainders)
+        int iCategoryIndex = 0;
 
-        if(pattern.contains(":")){
-        //colon is delimiter
-        String[] sarrSplitPatternColon = pattern.split(":");
-        int firstHalf = (int) (Double.parseDouble(sarrSplitPatternColon[0]) * (double) (iDegree));
-        int secondHalf = (int) (Double.parseDouble(sarrSplitPatternColon[1]) * (double) (iDegree));
+        if (pattern.contains(":")) {
+            //colon is delimiter
+            String[] sarrSplitPatternColon = pattern.split(":");
+            
+            for(int i = sarrSplitPatternColon.length-1; i > -1; i--){
+                int thisObs = (int) (Double.parseDouble(sarrSplitPatternColon[i]) * (double) (iDegree));
+                int parentNum = 1;
+                if(i != 0){
+                    parentNum = (int) Math.pow(iRange, i);
+                }
+                iCategoryIndex += thisObs * (parentNum);
+            }
+//            //colon is delimiter
+//            String[] sarrSplitPatternColon = pattern.split(":");
+//            int firstHalf = (int) (Double.parseDouble(sarrSplitPatternColon[0]) * (double) (iDegree));
+//            int secondHalf = (int) (Double.parseDouble(sarrSplitPatternColon[1]) * (double) (iDegree));
+//
+//            iCategoryIndex = firstHalf * iRange + secondHalf;
 
-        iCategoryIndex = firstHalf * iRange + secondHalf;
-        System.out.println("***\t\tpattern = " + pattern);
-        System.out.println("***\t\tCatNum: " + firstHalf + " * " + iRange + " + " + secondHalf + " = " + iCategoryIndex);
-        
-        } else{
+        } else {
             iCategoryIndex = (int) (Double.parseDouble(pattern) * (double) iDegree);
         }
         return iCategoryIndex;
