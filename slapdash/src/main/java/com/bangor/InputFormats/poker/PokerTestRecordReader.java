@@ -1,6 +1,5 @@
-package com.bangor.InputFormats.gap;
+package com.bangor.InputFormats.poker;
 
-import com.bangor.InputFormats.runs.*;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -14,9 +13,9 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.util.LineReader;
 
-public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
+public class PokerTestRecordReader extends RecordReader<LongWritable, Text> {
 
-    private final int NLINESTOPROCESS = 3;
+    private final int NLINESTOPROCESS = 5;
     private LineReader in;
     private LongWritable key;
     private Text value = new Text();
@@ -24,15 +23,6 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
     private long end = 0;
     private long pos = 0;
     private int maxLineLength;
-
-    private double dPrevVal = -1;
-
-    private boolean bRunUp = true;
-    private boolean bBeginningOfRun = false;
-    private Text tBeginningOfRun;
-    
-    private float fMinimumLimit;
-    private float fMaximumLimit;
 
     @Override
     public void close() throws IOException {
@@ -62,13 +52,11 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
 
     @Override
     public void initialize(InputSplit genericSplit, TaskAttemptContext context) throws IOException, InterruptedException {
-        tBeginningOfRun = new Text("");
+
         FileSplit split = (FileSplit) genericSplit;
         final Path file = split.getPath();
         Configuration conf = context.getConfiguration();
         this.maxLineLength = conf.getInt("mapred.linerecordreader.maxlength", Integer.MAX_VALUE);
-        this.fMinimumLimit = conf.getFloat("fMinimumLimit", 0);
-        this.fMaximumLimit = conf.getFloat("fMaximumLimit", 2);
         FileSystem fs = file.getFileSystem(conf);
         start = split.getStart();
         end = start + split.getLength();
@@ -101,37 +89,19 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
         final Text endline = new Text(":");
         int newSize = 0;
 
-        boolean bOnRun = true;
-        while (bOnRun) {
-
+        for(int i=0;i<NLINESTOPROCESS;i++){
             Text v = new Text();
-            if (pos >= end) {
-                bOnRun = false;
-                break;
-            }
             while (pos < end) {
-                System.out.println("\n***\nchecking new num");
-                newSize = in.readLine(v, maxLineLength, Math.max((int) Math.min(Integer.MAX_VALUE, end - pos), maxLineLength));
+                newSize = in.readLine(v, maxLineLength,Math.max((int)Math.min(Integer.MAX_VALUE, end-pos),maxLineLength));
+                
+                
+                value.append(v.getBytes(),0, v.getLength());
+                value.append(endline.getBytes(),0, endline.getLength());
                 if (newSize == 0) {
                     break;
                 }
                 pos += newSize;
-                String sNewValue = new String(v.getBytes());
-                float fNewValue = Float.parseFloat(sNewValue);
-
-                
-
-                value.append(v.getBytes(), 0, v.getLength());
-                value.append(endline.getBytes(), 0, endline.getLength());
-                
-                if (fNewValue >= this.fMinimumLimit && fNewValue < this.fMaximumLimit) {
-                    System.out.println("break: dNewValue in range");
-                    bOnRun = false;
-                        break;
-                }
-
                 if (newSize < maxLineLength) {
-                    System.out.println("break: newSize < maxLineLength");
                     break;
                 }
             }

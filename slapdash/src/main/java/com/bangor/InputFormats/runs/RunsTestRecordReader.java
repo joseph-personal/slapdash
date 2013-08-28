@@ -1,6 +1,5 @@
-package com.bangor.InputFormats.gap;
+package com.bangor.InputFormats.runs;
 
-import com.bangor.InputFormats.runs.*;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -14,7 +13,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.util.LineReader;
 
-public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
+public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
 
     private final int NLINESTOPROCESS = 3;
     private LineReader in;
@@ -30,9 +29,6 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
     private boolean bRunUp = true;
     private boolean bBeginningOfRun = false;
     private Text tBeginningOfRun;
-    
-    private float fMinimumLimit;
-    private float fMaximumLimit;
 
     @Override
     public void close() throws IOException {
@@ -67,8 +63,6 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
         final Path file = split.getPath();
         Configuration conf = context.getConfiguration();
         this.maxLineLength = conf.getInt("mapred.linerecordreader.maxlength", Integer.MAX_VALUE);
-        this.fMinimumLimit = conf.getFloat("fMinimumLimit", 0);
-        this.fMaximumLimit = conf.getFloat("fMaximumLimit", 2);
         FileSystem fs = file.getFileSystem(conf);
         start = split.getStart();
         end = start + split.getLength();
@@ -87,7 +81,6 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
         this.pos = start;
     }
 
-    // TODO: Email Ryan about this test
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
         if (key == null) {
@@ -104,34 +97,63 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
         boolean bOnRun = true;
         while (bOnRun) {
 
+            //if we are at beginning of run -> append first observation to value (postponed from end of last run)
+            if (!tBeginningOfRun.toString().isEmpty()) {
+                //append first observation
+                value.append(tBeginningOfRun.getBytes(), 0, tBeginningOfRun.getLength());
+                value.append(endline.getBytes(), 0, endline.getLength());
+                //set prev value for run comparisons
+                this.dPrevVal = Double.parseDouble(tBeginningOfRun.toString());
+                //beginning of run text set to blank
+                tBeginningOfRun.set("");
+            }
+
             Text v = new Text();
-            if (pos >= end) {
+            if (!(pos < end)) {
                 bOnRun = false;
                 break;
             }
             while (pos < end) {
-                System.out.println("\n***\nchecking new num");
+                //get size of this line, read it into v
                 newSize = in.readLine(v, maxLineLength, Math.max((int) Math.min(Integer.MAX_VALUE, end - pos), maxLineLength));
+                //if line is blank, skip this iteration
                 if (newSize == 0) {
                     break;
                 }
+                //plus size onto position var
                 pos += newSize;
-                String sNewValue = new String(v.getBytes());
-                float fNewValue = Float.parseFloat(sNewValue);
-
                 
+                //get this value as double for comparison
+                String sNewValue = new String(v.getBytes());
+                double dNewValue = Double.parseDouble(sNewValue);
+                
+                //valid for if we were on a run up or not
+                boolean bWasRunUp = this.bRunUp;
 
+                //set bRunUp to whether or not this one is a run
+                this.bRunUp = dNewValue >= this.dPrevVal;
+
+                //if we aren't on the beginning of a run, compare the two runUp booleans
+                //end this run if runType changes
+                if (!bBeginningOfRun) {
+                    if (this.bRunUp != bWasRunUp) {
+                        tBeginningOfRun = v;
+                        bOnRun = false;
+                        bBeginningOfRun = true;
+                        break;
+                    }
+                }
+                //at this stage, we are no longer at the beginning of a run
+                bBeginningOfRun = false;
+                //change previous value for this value
+                this.dPrevVal = dNewValue;
+
+                //append this value to value text
                 value.append(v.getBytes(), 0, v.getLength());
                 value.append(endline.getBytes(), 0, endline.getLength());
-                
-                if (fNewValue >= this.fMinimumLimit && fNewValue < this.fMaximumLimit) {
-                    System.out.println("break: dNewValue in range");
-                    bOnRun = false;
-                        break;
-                }
 
+                //if our newSize is smaller than the maximum we break out of the nested while loop
                 if (newSize < maxLineLength) {
-                    System.out.println("break: newSize < maxLineLength");
                     break;
                 }
             }

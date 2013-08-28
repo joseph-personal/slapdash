@@ -1,7 +1,6 @@
 package com.bangor.empirical;
 
-import com.bangor.InputFormats.gap.GapTestInputFormat;
-import com.bangor.InputFormats.runs.RunsTestInputFormat;
+import com.bangor.InputFormats.poker.PokerTestInputFormat;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,15 +22,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
  *
  * @author Joseph W Plant
  */
-public class GapTest {
-    
-    private float fMinimumLimit;
-    private float fMaximumLimit;
-    
-    public GapTest(float fMinimumLimit, float fMaximumLimit){
-        this.fMinimumLimit = fMinimumLimit;
-        this.fMaximumLimit = fMaximumLimit;
-    }
+public class PokerTest {
 
     /**
      * This is the Map class for this test
@@ -55,8 +46,41 @@ public class GapTest {
 
             String data = tValue.toString();
             System.out.println("data: " + data);
-            Integer iLengthOfSeq = data.split(":").length;
-            tWord.set(iLengthOfSeq.toString());
+            String[] sarrSplitData = data.split(":");
+            float[] farrCounts = {0, 0, 0, 0, 0};
+            int iNumOfZeros = 5;
+            for(int i = 0; i < sarrSplitData.length; i++){
+                for (int j = 0; j < farrCounts.length; j++) {
+                    if(farrCounts[j] == Float.parseFloat(sarrSplitData[i])){
+                        farrCounts[j]++;
+                        break;
+                    }
+                }
+                farrCounts[i] = Float.parseFloat(sarrSplitData[i]);
+                iNumOfZeros--;
+            }
+            
+            switch  (iNumOfZeros){
+                    case 1:
+                        tWord.set("5");
+                        break;
+                    case 2:
+                        tWord.set("4");
+                        break;
+                    case 3:
+                        tWord.set("3");
+                        break;
+                    case 4:
+                        tWord.set("2");
+                        break;
+                    case 5:
+                        tWord.set("1");
+                        break;
+            }
+                        
+            
+//            Integer iLengthOfSeq = data.split(":").length;
+//            tWord.set(iLengthOfSeq.toString());
             try {
                 cContext.write(tWord, iwOne);
             } catch (InterruptedException ex) {
@@ -107,10 +131,8 @@ public class GapTest {
     public Job test(String sInput, String sOutput) throws Exception {
 
         Configuration conf = new Configuration();
-        conf.setFloat("fMinimumLimit", fMinimumLimit);
-        conf.setFloat("fMaximumLimit", fMaximumLimit);
-        Job job = new Job(conf, "GapTest");
-        job.setJarByClass(GapTest.class);
+        Job job = new Job(conf, "PokerTest");
+        job.setJarByClass(PokerTest.class);
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
@@ -119,7 +141,7 @@ public class GapTest {
         job.setCombinerClass(Reduce.class);
         job.setReducerClass(Reduce.class);
 
-        job.setInputFormatClass(GapTestInputFormat.class);
+        job.setInputFormatClass(PokerTestInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
 
         FileInputFormat.setInputPaths(job, new Path(sInput));

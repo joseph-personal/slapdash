@@ -1,6 +1,5 @@
 package com.bangor.empirical;
 
-import com.bangor.InputFormats.gap.GapTestInputFormat;
 import com.bangor.InputFormats.runs.RunsTestInputFormat;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -23,17 +22,8 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
  *
  * @author Joseph W Plant
  */
-public class GapTest {
-    
-    private float fMinimumLimit;
-    private float fMaximumLimit;
-    
-    public GapTest(float fMinimumLimit, float fMaximumLimit){
-        this.fMinimumLimit = fMinimumLimit;
-        this.fMaximumLimit = fMaximumLimit;
-    }
-
-    /**
+public class RunsTest {
+/**
      * This is the Map class for this test
      */
     public static class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
@@ -52,7 +42,7 @@ public class GapTest {
          */
         @Override
         public void map(LongWritable lwKey, Text tValue, Context cContext) throws IOException {
-
+            
             String data = tValue.toString();
             System.out.println("data: " + data);
             Integer iLengthOfSeq = data.split(":").length;
@@ -91,7 +81,7 @@ public class GapTest {
                 Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
+        
     }
 
     /**
@@ -106,11 +96,8 @@ public class GapTest {
      */
     public Job test(String sInput, String sOutput) throws Exception {
 
-        Configuration conf = new Configuration();
-        conf.setFloat("fMinimumLimit", fMinimumLimit);
-        conf.setFloat("fMaximumLimit", fMaximumLimit);
-        Job job = new Job(conf, "GapTest");
-        job.setJarByClass(GapTest.class);
+        Job job = new Job(new Configuration(), "RunsTest");
+        job.setJarByClass(RunsTest.class);
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
@@ -118,8 +105,8 @@ public class GapTest {
         job.setMapperClass(Map.class);
         job.setCombinerClass(Reduce.class);
         job.setReducerClass(Reduce.class);
-
-        job.setInputFormatClass(GapTestInputFormat.class);
+        
+        job.setInputFormatClass(RunsTestInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
 
         FileInputFormat.setInputPaths(job, new Path(sInput));

@@ -1,4 +1,4 @@
-package com.bangor.InputFormats.gap;
+package com.bangor.InputFormats.poker;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -10,16 +10,16 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 /**
  * This class is to override
  * 'org.apache.hadoop.mapreduce.lib.input.TextInputFormat'to call
- * GapTestRecordReader instead of the default
+ * PokerTestRecordReader instead of the default
  *
  * @author Joseph W Plant
  */
-public class GapTestInputFormat extends TextInputFormat {
+public class PokerTestInputFormat extends TextInputFormat {
 
     @Override
     public RecordReader<LongWritable, Text> createRecordReader(
             InputSplit arg0, TaskAttemptContext arg1) {
 
-        return new GapTestRecordReader();
+        return new PokerTestRecordReader();
     }
 }
