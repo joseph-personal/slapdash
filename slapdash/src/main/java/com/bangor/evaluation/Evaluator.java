@@ -118,7 +118,7 @@ public class Evaluator {
                 String[] splitCurrentLine = sCurrentLine.split("\\t");
 
                 int catNum = getCategoryIndex(splitCurrentLine[0].trim(), this.iRange, this.iDegree);
-                System.out.println("***\t\tcatNum = " + catNum);
+//                System.out.println("***\t\tcatNum = " + catNum);
 //                int catNum = Integer.parseInt("gfdhfdgdfgd");
                 int catAmount = Integer.parseInt(splitCurrentLine[splitCurrentLine.length - 1].trim());
 

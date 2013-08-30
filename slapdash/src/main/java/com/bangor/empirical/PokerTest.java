@@ -24,6 +24,12 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
  */
 public class PokerTest {
 
+    private int iGroupSize;
+
+    public PokerTest(int iGroupSize) {
+        this.iGroupSize = iGroupSize;
+    }
+
     /**
      * This is the Map class for this test
      */
@@ -44,41 +50,41 @@ public class PokerTest {
         @Override
         public void map(LongWritable lwKey, Text tValue, Context cContext) throws IOException {
 
+            int iGroupSize = cContext.getConfiguration().getInt("iGroupSize", 5);
             String data = tValue.toString();
             System.out.println("data: " + data);
+
             String[] sarrSplitData = data.split(":");
-            float[] farrCounts = {0, 0, 0, 0, 0};
-            int iNumOfZeros = 5;
-            for(int i = 0; i < sarrSplitData.length; i++){
-                for (int j = 0; j < farrCounts.length; j++) {
-                    if(farrCounts[j] == Float.parseFloat(sarrSplitData[i])){
-                        farrCounts[j]++;
-                        break;
+//            float[] farrCounts = new float[iGroupSize];
+            int iNumOfDifferences = 5;
+//            boolean bIsDuplicate;
+//            for (int i = 0; i < sarrSplitData.length; i++) {
+//                bIsDuplicate = true;
+//                for (int j = 0; j < farrCounts.length; j++) {
+//                    if (farrCounts[j] == Float.parseFloat(sarrSplitData[i])) {
+//                        farrCounts[j]++;
+//                        iNumOfDifferences--;
+//                        break;
+//                    }
+//                    bIsDuplicate = false;
+//                }
+//                if (!bIsDuplicate) {
+//                    farrCounts[i] = Float.parseFloat(sarrSplitData[i]);
+//                }
+//            }
+
+            //get number of differences in list. don't check same two twice
+            for (int i = 0; i < sarrSplitData.length; i++) {
+                for (int j = i + 1; j < sarrSplitData.length; j++) {
+                    if (sarrSplitData[i].equals(sarrSplitData[j])) {
+                        iNumOfDifferences--;
                     }
                 }
-                farrCounts[i] = Float.parseFloat(sarrSplitData[i]);
-                iNumOfZeros--;
             }
-            
-            switch  (iNumOfZeros){
-                    case 1:
-                        tWord.set("5");
-                        break;
-                    case 2:
-                        tWord.set("4");
-                        break;
-                    case 3:
-                        tWord.set("3");
-                        break;
-                    case 4:
-                        tWord.set("2");
-                        break;
-                    case 5:
-                        tWord.set("1");
-                        break;
-            }
-                        
-            
+
+            System.out.println("***\tiNumOfDifferences = " + iNumOfDifferences);
+            tWord.set(((Integer) iNumOfDifferences).toString());
+
 //            Integer iLengthOfSeq = data.split(":").length;
 //            tWord.set(iLengthOfSeq.toString());
             try {
@@ -118,6 +124,14 @@ public class PokerTest {
 
     }
 
+    public int getGroupSize() {
+        return iGroupSize;
+    }
+
+    public void setGroupSize(int iGroupSize) {
+        this.iGroupSize = iGroupSize;
+    }
+
     /**
      * RUNS A SERIAL-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE. OUTPUT
      * IS SET TO THE OUTPUT FILE
@@ -131,6 +145,7 @@ public class PokerTest {
     public Job test(String sInput, String sOutput) throws Exception {
 
         Configuration conf = new Configuration();
+        conf.setInt("iGroupSize", iGroupSize);
         Job job = new Job(conf, "PokerTest");
         job.setJarByClass(PokerTest.class);
 

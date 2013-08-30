@@ -15,7 +15,7 @@ import org.apache.hadoop.util.LineReader;
 
 public class PokerTestRecordReader extends RecordReader<LongWritable, Text> {
 
-    private final int NLINESTOPROCESS = 5;
+    private int NLINESTOPROCESS = 5;
     private LineReader in;
     private LongWritable key;
     private Text value = new Text();
@@ -57,6 +57,7 @@ public class PokerTestRecordReader extends RecordReader<LongWritable, Text> {
         final Path file = split.getPath();
         Configuration conf = context.getConfiguration();
         this.maxLineLength = conf.getInt("mapred.linerecordreader.maxlength", Integer.MAX_VALUE);
+        this.NLINESTOPROCESS = conf.getInt("iGroupSize", 5);
         FileSystem fs = file.getFileSystem(conf);
         start = split.getStart();
         end = start + split.getLength();

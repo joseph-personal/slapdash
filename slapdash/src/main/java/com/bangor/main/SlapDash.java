@@ -9,8 +9,11 @@ import com.bangor.empirical.SerialTest;
 import com.bangor.utils.UtilityHadoop;
 import com.bangor.utils.UtilityMath;
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.math.util.MathUtils;
 import org.apache.hadoop.mapreduce.Job;
 
 /**
@@ -81,14 +84,27 @@ public class SlapDash {
             //GET REST OF PARAMETER ARGUMENTS
             int iRange = Integer.parseInt(args[1]);
             int idegree = Integer.parseInt(args[2]);
-            float dMinimumRange = Float.parseFloat(args[3]);
-            float dMaximumRange = Float.parseFloat(args[4]);
+            float dMinimumLimit = Float.parseFloat(args[3]);
+            float dMaximumLimit = Float.parseFloat(args[4]);
             String sEevaluation = args[5];
             double dSignificance = Double.parseDouble(args[6]);
             String sInput = args[7];
             String sOutput = args[8];
 
-            boolean bTestPasses = gapTestHandler(iRange, idegree, dMinimumRange, dMaximumRange, sEevaluation, dSignificance, sInput, sOutput);
+            boolean bTestPasses = gapTestHandler(iRange, idegree, dMinimumLimit, dMaximumLimit, sEevaluation, dSignificance, sInput, sOutput);
+            System.err.println("Pass: " + bTestPasses);
+        } else if (test.equalsIgnoreCase("-P")) {
+
+            //GET REST OF PARAMETER ARGUMENTS
+            int iRange = Integer.parseInt(args[1]);
+            int idegree = Integer.parseInt(args[2]);
+            int iGroupSize = Integer.parseInt(args[3]);
+            String sEevaluation = args[4];
+            double dSignificance = Double.parseDouble(args[5]);
+            String sInput = args[6];
+            String sOutput = args[7];
+
+            boolean bTestPasses = pokerTestHandler(iRange, idegree, iGroupSize, sEevaluation, dSignificance, sInput, sOutput);
             System.err.println("Pass: " + bTestPasses);
         }
     }
@@ -140,8 +156,8 @@ public class SlapDash {
         Job conf = sTest.test(iLengthOfPattern, sInput, sOutput);
 
         String localOutput = UtilityHadoop.getFileFromHDFS(sOutput + File.separator + sFileName, conf);
-        System.out.println("***\t\tiRange = " + iRange);
-        System.out.println("***\t\tiLengthOfPattern = " + iLengthOfPattern);
+//        System.out.println("***\t\tiRange = " + iRange);
+//        System.out.println("***\t\tiLengthOfPattern = " + iLengthOfPattern);
         int numOfCombinations = UtilityMath.getCombinationAmount(iRange, iLengthOfPattern, true, true).intValue();
         double[] expected = new double[numOfCombinations];
         for (int i = 0; i < expected.length; i++) {
@@ -192,19 +208,22 @@ public class SlapDash {
      * @return boolean on whether sequence has passed or failed
      * @throws Exception
      */
-    private boolean gapTestHandler(int iRange, int iDegree, float fMinimumRange, float fMaximumRange, String sEvaluation, double dSignificance, String sInput, String sOutput) throws Exception {
+    private boolean gapTestHandler(int iRange, int iDegree, float fMinimumLimit, float fMaximumLimit, String sEvaluation, double dSignificance, String sInput, String sOutput) throws Exception {
 
-        GapTest gTest = new GapTest(fMinimumRange, fMaximumRange);
+        GapTest gTest = new GapTest(fMinimumLimit, fMaximumLimit);
         Job conf = gTest.test(sInput, sOutput);
 
         String localOutput = UtilityHadoop.getFileFromHDFS(sOutput + File.separator + sFileName, conf);
 
         double[] expected = new double[iRange];
-        expected[0] = (fMaximumRange - fMinimumRange) / iRange;
+        expected[0] = (fMaximumLimit - fMinimumLimit) / iRange;
         //TODO: Check this with Ryan
         for (int i = 1; i < expected.length; i++) {
-//            expected[i] = 1.0;
-            expected[i] = Math.pow(expected[0] * (1-expected[0]), i);
+            System.out.println("***");
+            double first = expected[0] * (1-expected[0]);
+            expected[i] = Math.pow(first, i);
+            System.out.println("\tfirst = " + first);
+            System.out.println("\texpected[i] = " + expected[i]);
         }
         Evaluator evaluator = new Evaluator(sEvaluation, localOutput, expected, dSignificance, iRange, iDegree);
 
@@ -223,18 +242,32 @@ public class SlapDash {
      * @return boolean on whether sequence has passed or failed
      * @throws Exception
      */
-    private boolean pokerTestHandler(int iRange, int iDegree, String sEvaluation, double dSignificance, String sInput, String sOutput) throws Exception {
+    private boolean pokerTestHandler(int iRange, int iDegree, int iGroupSize, String sEvaluation, double dSignificance, String sInput, String sOutput) throws Exception {
 
-        PokerTest pTest = new PokerTest();
+        PokerTest pTest = new PokerTest(iGroupSize);
         Job conf = pTest.test(sInput, sOutput);
 
         String localOutput = UtilityHadoop.getFileFromHDFS(sOutput + File.separator + sFileName, conf);
 
-        double[] expected = new double[iRange];
+        double[] expected = new double[iGroupSize];
         //TODO: Calculate the correct probability amount (in Knuths book)
+        //TODO: include this in the lit review
         for (int i = 1; i < expected.length; i++) {
+            
 //            expected[i] = 1.0;
-            expected[i] = Math.pow(expected[0] * (1-expected[0]), i);
+//            BigInteger bigInt = UtilityMath.factorial(iRange).divide(UtilityMath.factorial(iRange-i).multiply(BigInteger.valueOf((long)Math.pow(iRange, iGroupSize))) );
+//            System.out.println("power = " + power);
+            double bdFactLim = UtilityMath.factorialLimit(iRange, iRange - i + 1).doubleValue();
+//            System.out.println("bdFactLim = " + bdFactLim);
+            double bdPow = Math.pow(iRange, iGroupSize);
+//            System.out.println("bdPow = " + bdPow);
+            double bigDec = bdFactLim / bdPow;//.divide(bdPow);//(long)Math.pow(iRange, iGroupSize)));
+//            System.out.println("bigInt = " + bigDec);
+            double biSterlingVal = UtilityMath.SterlingNumber(iGroupSize, i).doubleValue();
+//            System.out.println("biSterlingVal = " + biSterlingVal);
+            //TODO: Test that bigDec is correct, sterling value is tested
+            expected[i] = bigDec * biSterlingVal;
+//            System.out.println("expected[i] = " + expected[i]);
         }
         Evaluator evaluator = new Evaluator(sEvaluation, localOutput, expected, dSignificance, iRange, iDegree);
 
