@@ -90,7 +90,6 @@ public class Evaluator {
         if (sEvaluationMethod.equalsIgnoreCase("-Ch")) {
             ChiSquare chiSquareTest = new ChiSquare(larrObservedCount,
                     darrExpectedCount, dSignificance);
-
             return chiSquareTest.evaluateChiSquare();
         }
 
@@ -200,7 +199,7 @@ public class Evaluator {
 //            iCategoryIndex = firstHalf * iRange + secondHalf;
 
         } else {
-            iCategoryIndex = (int) (Double.parseDouble(pattern) * (double) iDegree);
+            iCategoryIndex = (int) (Double.parseDouble(pattern) * (double) iDegree-1);
         }
         return iCategoryIndex;
     }

@@ -250,24 +250,16 @@ public class SlapDash {
         String localOutput = UtilityHadoop.getFileFromHDFS(sOutput + File.separator + sFileName, conf);
 
         double[] expected = new double[iGroupSize];
-        //TODO: Calculate the correct probability amount (in Knuths book)
-        //TODO: include this in the lit review
-        for (int i = 1; i < expected.length; i++) {
-            
-//            expected[i] = 1.0;
-//            BigInteger bigInt = UtilityMath.factorial(iRange).divide(UtilityMath.factorial(iRange-i).multiply(BigInteger.valueOf((long)Math.pow(iRange, iGroupSize))) );
-//            System.out.println("power = " + power);
-            double bdFactLim = UtilityMath.factorialLimit(iRange, iRange - i + 1).doubleValue();
-//            System.out.println("bdFactLim = " + bdFactLim);
-            double bdPow = Math.pow(iRange, iGroupSize);
-//            System.out.println("bdPow = " + bdPow);
-            double bigDec = bdFactLim / bdPow;//.divide(bdPow);//(long)Math.pow(iRange, iGroupSize)));
-//            System.out.println("bigInt = " + bigDec);
-            double biSterlingVal = UtilityMath.SterlingNumber(iGroupSize, i).doubleValue();
-//            System.out.println("biSterlingVal = " + biSterlingVal);
-            //TODO: Test that bigDec is correct, sterling value is tested
-            expected[i] = bigDec * biSterlingVal;
-//            System.out.println("expected[i] = " + expected[i]);
+        for (int i = 0; i < expected.length; i++) {
+            double dFactLim = UtilityMath.factorialLimit(iRange, iRange - (i+1) + 1).doubleValue();
+      
+            double dPow = Math.pow(iRange, iGroupSize);
+
+            double dDiv = dFactLim / dPow;
+
+            double dSterlingVal = UtilityMath.SterlingNumber(iGroupSize, i+1).doubleValue();
+
+            expected[i] = dDiv * dSterlingVal;
         }
         Evaluator evaluator = new Evaluator(sEvaluation, localOutput, expected, dSignificance, iRange, iDegree);
 
