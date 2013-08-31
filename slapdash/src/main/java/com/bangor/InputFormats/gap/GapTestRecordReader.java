@@ -24,12 +24,6 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
     private long end = 0;
     private long pos = 0;
     private int maxLineLength;
-
-    private double dPrevVal = -1;
-
-    private boolean bRunUp = true;
-    private boolean bBeginningOfRun = false;
-    private Text tBeginningOfRun;
     
     private float fMinimumLimit;
     private float fMaximumLimit;
@@ -62,7 +56,6 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
 
     @Override
     public void initialize(InputSplit genericSplit, TaskAttemptContext context) throws IOException, InterruptedException {
-        tBeginningOfRun = new Text("");
         FileSplit split = (FileSplit) genericSplit;
         final Path file = split.getPath();
         Configuration conf = context.getConfiguration();
