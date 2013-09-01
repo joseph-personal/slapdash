@@ -15,7 +15,6 @@ import org.apache.hadoop.util.LineReader;
 
 public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
 
-    private final int NLINESTOPROCESS = 3;
     private LineReader in;
     private LongWritable key;
     private Text value = new Text();
@@ -26,9 +25,12 @@ public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
 
     private double dPrevVal = -1;
 
-    private boolean bRunUp = true;
+    private boolean bCalcRunsUp = true;
     private boolean bBeginningOfRun = false;
     private Text tBeginningOfRun;
+
+    private float fMinimumValue = 0;
+    private float fMaximumValue = 10;
 
     @Override
     public void close() throws IOException {
@@ -63,6 +65,10 @@ public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
         final Path file = split.getPath();
         Configuration conf = context.getConfiguration();
         this.maxLineLength = conf.getInt("mapred.linerecordreader.maxlength", Integer.MAX_VALUE);
+        this.bCalcRunsUp = conf.getBoolean("bCalcRunsUp", bCalcRunsUp);
+        this.fMinimumValue = conf.getFloat("fMinimumValue", fMinimumValue);
+        this.fMaximumValue = conf.getFloat("fMaximumValue", fMaximumValue);
+        setPrevValToDefault();
         FileSystem fs = file.getFileSystem(conf);
         start = split.getStart();
         end = start + split.getLength();
@@ -97,17 +103,23 @@ public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
         boolean bOnRun = true;
         while (bOnRun) {
 
-            //if we are at beginning of run -> append first observation to value (postponed from end of last run)
-            if (!tBeginningOfRun.toString().isEmpty()) {
-                //append first observation
-                value.append(tBeginningOfRun.getBytes(), 0, tBeginningOfRun.getLength());
-                value.append(endline.getBytes(), 0, endline.getLength());
-                //set prev value for run comparisons
-                this.dPrevVal = Double.parseDouble(tBeginningOfRun.toString());
-                //beginning of run text set to blank
-                tBeginningOfRun.set("");
+//            //if we are at beginning of run -> append first observation to value (postponed from end of last run)
+//            if (!tBeginningOfRun.toString().isEmpty()) {
+//                //this value is to be skipped to implement chi square
+////                value.append(tBeginningOfRun.getBytes(), 0, tBeginningOfRun.getLength());
+////                value.append(endline.getBytes(), 0, endline.getLength());
+//                //set prev value for run comparisons
+//                this.dPrevVal = Double.parseDouble(tBeginningOfRun.toString());
+//                //beginning of run text set to blank
+//                tBeginningOfRun.set("");
+//            }
+            if (this.bBeginningOfRun) {
+                if (this.bCalcRunsUp) {
+                    this.dPrevVal = this.fMinimumValue - 1;
+                } else {
+                    this.dPrevVal = this.fMinimumValue + 1;
+                }
             }
-
             Text v = new Text();
             if (!(pos < end)) {
                 bOnRun = false;
@@ -122,35 +134,56 @@ public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
                 }
                 //plus size onto position var
                 pos += newSize;
-                
+
                 //get this value as double for comparison
                 String sNewValue = new String(v.getBytes());
                 double dNewValue = Double.parseDouble(sNewValue);
-                
+
                 //valid for if we were on a run up or not
-                boolean bWasRunUp = this.bRunUp;
-
+//                boolean bWasRunUp = this.bRunUp;
                 //set bRunUp to whether or not this one is a run
-                this.bRunUp = dNewValue >= this.dPrevVal;
-
+//                this.bRunUp = dNewValue >= this.dPrevVal;
                 //if we aren't on the beginning of a run, compare the two runUp booleans
                 //end this run if runType changes
-                if (!bBeginningOfRun) {
-                    if (this.bRunUp != bWasRunUp) {
+//                if (!bBeginningOfRun) {
+                System.out.println("***checking:\tdPrevVal = " + dPrevVal);
+                System.out.println("***checking:\tdNewValue = " + dNewValue);
+//                    if (this.bRunUp != bWasRunUp) {
+//                        tBeginningOfRun = v;
+//                        bOnRun = false;
+//                        bBeginningOfRun = true;
+//                        break;
+//                    }
+                if (this.bCalcRunsUp) {
+                    //run ended when next value is less than this one
+                    if (dNewValue <= this.dPrevVal) {
+//                            System.out.println("***\tdPrevVal = " + dPrevVal);
                         tBeginningOfRun = v;
                         bOnRun = false;
-                        bBeginningOfRun = true;
+                        setPrevValToDefault();
+//                            bBeginningOfRun = true;
+                        break;
+                    }
+                } else {
+                    //run ended when next value is greater than this one
+                    if (dNewValue >= this.dPrevVal) {
+                        tBeginningOfRun = v;
+                        bOnRun = false;
+                        setPrevValToDefault();
+//                            bBeginningOfRun = true;
                         break;
                     }
                 }
-                //at this stage, we are no longer at the beginning of a run
-                bBeginningOfRun = false;
-                //change previous value for this value
-                this.dPrevVal = dNewValue;
 
+                System.out.println("***appending:\tdNewValue = " + dNewValue);
                 //append this value to value text
                 value.append(v.getBytes(), 0, v.getLength());
                 value.append(endline.getBytes(), 0, endline.getLength());
+                //change previous value for this value
+                this.dPrevVal = dNewValue;
+//                }
+                //at this stage, we are no longer at the beginning of a run
+//                bBeginningOfRun = false;
 
                 //if our newSize is smaller than the maximum we break out of the nested while loop
                 if (newSize < maxLineLength) {
@@ -164,6 +197,14 @@ public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
             return false;
         } else {
             return true;
+        }
+    }
+
+    private void setPrevValToDefault() {
+        if (this.bCalcRunsUp) {
+            this.dPrevVal = this.fMinimumValue - 1;
+        } else {
+            this.dPrevVal = this.fMinimumValue + 1;
         }
     }
 }

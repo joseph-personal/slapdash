@@ -1,6 +1,7 @@
 package com.bangor.empirical;
 
-import com.bangor.InputFormats.runs.RunsTestInputFormat;
+import com.bangor.InputFormats.poker.PokerTestInputFormat;
+import com.bangor.utils.UtilityArrays;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,16 +23,12 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
  *
  * @author Joseph W Plant
  */
-public class RunsTest {
+public class PermutationTest {
 
-    private final boolean bCalcRunsUp;
-    private final float fMinimumValue;
-    private final float fMaximumValue;
+    private int iGroupSize;
 
-    public RunsTest(boolean bCalcRunsUp, float fMinimumValue, float fMaximumValue) {
-        this.bCalcRunsUp = bCalcRunsUp;
-        this.fMinimumValue = fMinimumValue;
-        this.fMaximumValue = fMaximumValue;
+    public PermutationTest(int iGroupSize) {
+        this.iGroupSize = iGroupSize;
     }
 
     /**
@@ -46,6 +43,9 @@ public class RunsTest {
          * Maps each pattern into an initial key/value pair This method will
          * ignore any non-numbers (e.g. letters/grammar)
          *
+         * This algorithm is gathered from Knuth's 'The Art of Computer
+         * Programming', permutation test
+         *
          * @param lwKey initial key
          * @param tValue initial value
          * @param cContext the context of the job
@@ -56,14 +56,37 @@ public class RunsTest {
 
             String data = tValue.toString();
             System.out.println("data: " + data);
-            Integer iLengthOfSeq = data.split(":").length;
-            tWord.set(iLengthOfSeq.toString());
-            if (!tWord.toString().isEmpty()) {
-                try {
-                    cContext.write(tWord, iwOne);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
+
+            String[] sarrSplitData = data.split(":");
+            int f = 0;
+
+            double dLargestObsv;
+            double dCurrentObsv;
+
+            for (int r = sarrSplitData.length - 1; r > 0; r--) {
+                int iLargestIndex = r;
+                for (int j = 0; j <= r - 1; j++) {
+                    dCurrentObsv = Double.parseDouble(sarrSplitData[j]);
+                    dLargestObsv = Double.parseDouble(sarrSplitData[iLargestIndex]);
+//                    System.out.println("***\t[" + j + "] " + dCurrentObsv + " > [" + iLargestIndex + "]" + dLargestObsv + "?");
+                    iLargestIndex = (dCurrentObsv > dLargestObsv) ? j : iLargestIndex;
+//                    System.out.println("***\tiLargestIndex = " + iLargestIndex);
                 }
+                f = f * (r + 1) + iLargestIndex;
+//                System.out.println("*** largestNumber = " + sarrSplitData[iLargestIndex]);
+                sarrSplitData = (String[]) UtilityArrays.swap(sarrSplitData, r, iLargestIndex);
+
+            }
+                UtilityArrays.printArray(sarrSplitData, "*** ");
+
+            tWord.set(((Integer) f).toString());
+
+//            Integer iLengthOfSeq = data.split(":").length;
+//            tWord.set(iLengthOfSeq.toString());
+            try {
+                cContext.write(tWord, iwOne);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -90,9 +113,6 @@ public class RunsTest {
             try {
                 //            output.collect(key, new IntWritable(sum));
                 cContext.write(tKey, new IntWritable(iSum));
-                System.out.println("***");
-                System.out.println("\ttKey = " + tKey);
-                System.out.println("\tiSum = " + iSum);
             } catch (InterruptedException ex) {
                 Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -100,24 +120,29 @@ public class RunsTest {
 
     }
 
+    public int getGroupSize() {
+        return iGroupSize;
+    }
+
+    public void setGroupSize(int iGroupSize) {
+        this.iGroupSize = iGroupSize;
+    }
+
     /**
      * RUNS A SERIAL-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE. OUTPUT
      * IS SET TO THE OUTPUT FILE
      *
-     * @param iPatternLength the length of each pattern
      * @param sInput Input file of data.
      * @param sOutput File to output reduce data to
      * @return The job
      * @throws Exception
      */
     public Job test(String sInput, String sOutput) throws Exception {
+
         Configuration conf = new Configuration();
-        conf.setBoolean("bCalcRunsUp", bCalcRunsUp);
-        conf.setFloat("fMinimumValue", fMinimumValue);
-        System.out.println("fMinimumValue = " + fMinimumValue);
-        conf.setFloat("fMaximumValue", fMaximumValue);
-        Job job = new Job(conf, "RunsTest");
-        job.setJarByClass(RunsTest.class);
+        conf.setInt("iGroupSize", iGroupSize);
+        Job job = new Job(conf, "PokerTest");
+        job.setJarByClass(PermutationTest.class);
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
@@ -126,7 +151,7 @@ public class RunsTest {
         job.setCombinerClass(Reduce.class);
         job.setReducerClass(Reduce.class);
 
-        job.setInputFormatClass(RunsTestInputFormat.class);
+        job.setInputFormatClass(PokerTestInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
 
         FileInputFormat.setInputPaths(job, new Path(sInput));
