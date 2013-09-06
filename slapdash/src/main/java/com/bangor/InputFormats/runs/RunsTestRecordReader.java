@@ -27,7 +27,6 @@ public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
 
     private boolean bCalcRunsUp = true;
     private boolean bBeginningOfRun = false;
-    private Text tBeginningOfRun;
 
     private float fMinimumValue = 0;
     private float fMaximumValue = 10;
@@ -60,7 +59,6 @@ public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
 
     @Override
     public void initialize(InputSplit genericSplit, TaskAttemptContext context) throws IOException, InterruptedException {
-        tBeginningOfRun = new Text("");
         FileSplit split = (FileSplit) genericSplit;
         final Path file = split.getPath();
         Configuration conf = context.getConfiguration();
@@ -87,6 +85,14 @@ public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
         this.pos = start;
     }
 
+    /**
+     * This returns the next run to each mapper. The run direction is based on
+     * bCalcRunsUp. This would be better as a distributed RecordReader
+     *
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
         if (key == null) {
@@ -158,7 +164,6 @@ public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
                     //run ended when next value is less than this one
                     if (dNewValue <= this.dPrevVal) {
 //                            System.out.println("***\tdPrevVal = " + dPrevVal);
-                        tBeginningOfRun = v;
                         bOnRun = false;
                         setPrevValToDefault();
 //                            bBeginningOfRun = true;
@@ -167,7 +172,6 @@ public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
                 } else {
                     //run ended when next value is greater than this one
                     if (dNewValue >= this.dPrevVal) {
-                        tBeginningOfRun = v;
                         bOnRun = false;
                         setPrevValToDefault();
 //                            bBeginningOfRun = true;

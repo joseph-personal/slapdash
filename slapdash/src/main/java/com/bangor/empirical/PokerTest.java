@@ -18,7 +18,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 /**
  * This class is to allow the creation and execution of a Hadoop MapReduce
- * serial Test
+ * poker Test
  *
  * @author Joseph W Plant
  */

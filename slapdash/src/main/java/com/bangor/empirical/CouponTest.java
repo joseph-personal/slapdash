@@ -20,7 +20,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 /**
  * This class is to allow the creation and execution of a Hadoop MapReduce
- * serial Test
+ * Coupon Test
  *
  * @author Joseph W Plant
  */
@@ -98,10 +98,9 @@ public class CouponTest {
     }
 
     /**
-     * RUNS A SERIAL-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE. OUTPUT
+     * RUNS A COUPON-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE. OUTPUT
      * IS SET TO THE OUTPUT FILE
      *
-     * @param iPatternLength the length of each pattern
      * @param sInput Input file of data.
      * @param sOutput File to output reduce data to
      * @return The job

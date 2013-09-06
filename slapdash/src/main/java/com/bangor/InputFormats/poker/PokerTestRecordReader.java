@@ -76,6 +76,12 @@ public class PokerTestRecordReader extends RecordReader<LongWritable, Text> {
         this.pos = start;
     }
 
+    /**
+     * This returns this 'hand' for the poker test. Works the same way as the permuation Test. Returns based on NLINESTTOPROCESS
+     * @return
+     * @throws IOException
+     * @throws InterruptedException 
+     */
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
         if (key == null) {

@@ -1,6 +1,5 @@
 package com.bangor.InputFormats.permutation;
 
-import com.bangor.InputFormats.poker.*;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;

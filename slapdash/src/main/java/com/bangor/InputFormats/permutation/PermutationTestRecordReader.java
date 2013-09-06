@@ -1,6 +1,5 @@
 package com.bangor.InputFormats.permutation;
 
-import com.bangor.InputFormats.poker.*;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -77,6 +76,12 @@ public class PermutationTestRecordReader extends RecordReader<LongWritable, Text
         this.pos = start;
     }
 
+    /**
+     * This returns the next permutation, of length NLINESTOPROCESS.
+     * @return
+     * @throws IOException
+     * @throws InterruptedException 
+     */
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
         if (key == null) {

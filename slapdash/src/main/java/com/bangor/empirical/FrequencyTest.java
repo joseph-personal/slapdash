@@ -91,7 +91,7 @@ public class FrequencyTest {
     }
 
     /**
-     * RUNS A SERIAL-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE. OUTPUT
+     * RUNS A THE FREQUENCY-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE. OUTPUT
      * IS SET TO THE OUTPUT FILE
      *
      * @param sInput Input file of data.

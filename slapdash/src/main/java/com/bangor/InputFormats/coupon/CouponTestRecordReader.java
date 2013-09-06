@@ -1,6 +1,5 @@
 package com.bangor.InputFormats.coupon;
 
-import com.bangor.InputFormats.poker.*;
 import com.bangor.empirical.SerialTest;
 import com.bangor.utils.UtilityArrays;
 import java.io.IOException;
@@ -21,7 +20,6 @@ import org.apache.hadoop.util.LineReader;
 
 public class CouponTestRecordReader extends RecordReader<LongWritable, Text> {
 
-    private int NLINESTOPROCESS = 1;
     private LineReader in;
     private LongWritable key;
     private Text value = new Text();
@@ -66,7 +64,6 @@ public class CouponTestRecordReader extends RecordReader<LongWritable, Text> {
         final Path file = split.getPath();
         Configuration conf = context.getConfiguration();
         this.maxLineLength = conf.getInt("mapred.linerecordreader.maxlength", Integer.MAX_VALUE);
-        this.NLINESTOPROCESS = conf.getInt("iGroupSize", 5);
         this.fMinimumLimit = conf.getFloat("fMinimumLimit", 1);
         this.fMaximumLimit = conf.getFloat("fMaximumLimit", 1);
         this.iDecimalPlace = conf.getInt("iDecimalPlace", 0);
@@ -88,6 +85,14 @@ public class CouponTestRecordReader extends RecordReader<LongWritable, Text> {
         this.pos = start;
     }
 
+    /**
+     * This will get the next sequence which holds all possible values, e.g a
+     * whole coupon. This would be better as a distributed RecordReader
+     *
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
         if (key == null) {
@@ -130,7 +135,7 @@ public class CouponTestRecordReader extends RecordReader<LongWritable, Text> {
                 if (!UtilityArrays.contains(darrOccurences, fNewValue)) {
                     try {
                         System.out.println("Putting value in array: " + fNewValue);
-                        
+
                         darrOccurences[i] = fNewValue;
                         //end of this segment if darrOccurences no longer contains dMinNumber-1
                         if (UtilityArrays.contains(darrOccurences, fMinimumLimit - 1)) {

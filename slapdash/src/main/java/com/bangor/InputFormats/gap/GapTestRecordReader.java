@@ -1,6 +1,5 @@
 package com.bangor.InputFormats.gap;
 
-import com.bangor.InputFormats.runs.*;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -16,7 +15,6 @@ import org.apache.hadoop.util.LineReader;
 
 public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
 
-    private final int NLINESTOPROCESS = 3;
     private LineReader in;
     private LongWritable key;
     private Text value = new Text();
@@ -80,6 +78,12 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
         this.pos = start;
     }
 
+    /**
+     * This will retrieve a whole gap, to send to each mapper. This would be better as a distributed RecordReader
+     * @return
+     * @throws IOException
+     * @throws InterruptedException 
+     */
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
         if (key == null) {
@@ -110,8 +114,6 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
                 pos += newSize;
                 String sNewValue = new String(v.getBytes());
                 float fNewValue = Float.parseFloat(sNewValue);
-
-                
 
                 value.append(v.getBytes(), 0, v.getLength());
                 value.append(endline.getBytes(), 0, endline.getLength());

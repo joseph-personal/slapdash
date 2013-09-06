@@ -19,7 +19,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 /**
  * This class is to allow the creation and execution of a Hadoop MapReduce
- * serial Test
+ * gap Test
  *
  * @author Joseph W Plant
  */
@@ -95,7 +95,7 @@ public class GapTest {
     }
 
     /**
-     * RUNS A SERIAL-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE. OUTPUT
+     * RUNS A GAP-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE. OUTPUT
      * IS SET TO THE OUTPUT FILE
      *
      * @param iPatternLength the length of each pattern

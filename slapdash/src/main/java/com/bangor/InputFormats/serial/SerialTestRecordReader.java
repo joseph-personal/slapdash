@@ -107,10 +107,13 @@ public class SerialTestRecordReader extends RecordReader<LongWritable, Text> {
     }
 
     /**
-     * OVERRIDE - gets the nextKeyValue to be processed
+     * OVERRIDE - gets the nextKeyValue to be processed. The next keyvalue is
+     * the next value plus the bugger size. Values included in this value will
+     * also be the beginning of another value
+     *
      * @return boolean
      * @throws IOException
-     * @throws InterruptedException 
+     * @throws InterruptedException
      */
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
@@ -140,6 +143,7 @@ public class SerialTestRecordReader extends RecordReader<LongWritable, Text> {
 
     /**
      * Gets the current value in the class
+     *
      * @return String value.
      */
     private String getValue() {
