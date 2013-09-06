@@ -130,9 +130,10 @@ public class CouponTestRecordReader extends RecordReader<LongWritable, Text> {
                 if (!UtilityArrays.contains(darrOccurences, fNewValue)) {
                     try {
                         System.out.println("Putting value in array: " + fNewValue);
+                        
                         darrOccurences[i] = fNewValue;
                         //end of this segment if darrOccurences no longer contains dMinNumber-1
-                        if (darrOccurences[iSizeOfArray - 1] != fMinimumLimit - 1) {
+                        if (UtilityArrays.contains(darrOccurences, fMinimumLimit - 1)) {
                             System.out.println("have whole collection. \n\tlast to process: " + fNewValue);
                             bOnRun = false;
                         }

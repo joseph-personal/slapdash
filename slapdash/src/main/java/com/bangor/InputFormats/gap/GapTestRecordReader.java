@@ -80,7 +80,6 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
         this.pos = start;
     }
 
-    // TODO: Email Ryan about this test
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
         if (key == null) {

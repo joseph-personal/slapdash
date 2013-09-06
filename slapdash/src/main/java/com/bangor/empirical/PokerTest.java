@@ -56,22 +56,7 @@ public class PokerTest {
 
             String[] sarrSplitData = data.split(":");
 //            float[] farrCounts = new float[iGroupSize];
-            int iNumOfDifferences = 5;
-//            boolean bIsDuplicate;
-//            for (int i = 0; i < sarrSplitData.length; i++) {
-//                bIsDuplicate = true;
-//                for (int j = 0; j < farrCounts.length; j++) {
-//                    if (farrCounts[j] == Float.parseFloat(sarrSplitData[i])) {
-//                        farrCounts[j]++;
-//                        iNumOfDifferences--;
-//                        break;
-//                    }
-//                    bIsDuplicate = false;
-//                }
-//                if (!bIsDuplicate) {
-//                    farrCounts[i] = Float.parseFloat(sarrSplitData[i]);
-//                }
-//            }
+            int iNumOfDifferences = iGroupSize;
 
             //get number of differences in list. don't check same two twice
             for (int i = 0; i < sarrSplitData.length; i++) {
@@ -133,10 +118,9 @@ public class PokerTest {
     }
 
     /**
-     * RUNS A SERIAL-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE. OUTPUT
+     * RUNS A POKER-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE. OUTPUT
      * IS SET TO THE OUTPUT FILE
      *
-     * @param iPatternLength the length of each pattern
      * @param sInput Input file of data.
      * @param sOutput File to output reduce data to
      * @return The job

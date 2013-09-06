@@ -175,7 +175,7 @@ public class ChiSquareCalculator {
      * @return 
      */
     public boolean doesPass(int p, double inaccuracy) throws IntegerNotValidException{
-        //TODO: WORK OUT HOW THIS TEST WORKS!!
+        
         boolean pass = false;
         double double_passValue;
         switch (p){
