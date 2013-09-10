@@ -1,7 +1,6 @@
 package com.bangor.empirical;
 
 import com.bangor.InputFormats.gap.GapTestInputFormat;
-import com.bangor.InputFormats.runs.RunsTestInputFormat;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -80,6 +80,7 @@ public class SlapDash {
             System.err.println("Pass: " + bTestPasses);
         } else if (test.equalsIgnoreCase("-G")) {
 
+            int iSequenceLength = Integer.parseInt(args[4]);
             float fMinOfGap = Float.parseFloat(args[4]);
             float fMaxOfGap = Float.parseFloat(args[5]);
             //GET REST OF PARAMETER ARGUMENTS
@@ -88,7 +89,7 @@ public class SlapDash {
             String sInput = args[8];
             String sOutput = args[9];
 
-            boolean bTestPasses = performGapsTest(iDecimalPlaces, fMinimumValue, fMaximumValue, fMinOfGap, fMaxOfGap, sEvaluation, dSignificance, sInput, sOutput);
+            boolean bTestPasses = performGapsTest(iDecimalPlaces, iSequenceLength, fMinimumValue, fMaximumValue, fMinOfGap, fMaxOfGap, sEvaluation, dSignificance, sInput, sOutput);
             System.err.println("Pass: " + bTestPasses);
         } else if (test.equalsIgnoreCase("-P")) {
 
@@ -248,7 +249,7 @@ public class SlapDash {
      * @return boolean on whether sequence has passed or failed
      * @throws Exception
      */
-    private boolean performGapsTest(int iDecimalPlaces, float fMinimumLimit, float fMaximumLimit, float fMinOfGapTest, float fMaxOfGapTest, String sEvaluation, double dSignificance, String sInput, String sOutput) throws Exception {
+    private boolean performGapsTest(int iDecimalPlaces, int iSequenceLength, float fMinimumLimit, float fMaximumLimit, float fMinOfGapTest, float fMaxOfGapTest, String sEvaluation, double dSignificance, String sInput, String sOutput) throws Exception {
 
         int iRange1 = (int) ((fMaximumLimit * (iDecimalPlaces + 1)) - (fMinimumLimit * (iDecimalPlaces + 1)));
         GapTest gTest = new GapTest(fMinOfGapTest, fMaxOfGapTest);
@@ -256,8 +257,9 @@ public class SlapDash {
 
         String localOutput = UtilityHadoop.getFileFromHDFS(sOutput + File.separator + sFileName, conf);
 
-        double[] expected = new double[iRange1];
-        expected[0] = (fMaximumLimit - fMinimumLimit) / iRange1;
+        //TODO: this should not be iRange1, it should be the sequence width
+        double[] expected = new double[iSequenceLength];
+        expected[0] = (fMaxOfGapTest - fMinOfGapTest) / iRange1;
         
         for (int i = 1; i < expected.length; i++) {
             System.out.println("***");
