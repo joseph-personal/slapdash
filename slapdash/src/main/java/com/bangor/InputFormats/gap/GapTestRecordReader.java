@@ -107,7 +107,8 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
             }
             while (pos < end) {
                 System.out.println("\n***\nchecking new num");
-                newSize = in.readLine(v, maxLineLength, Math.max((int) Math.min(Integer.MAX_VALUE, end - pos), maxLineLength));
+                newSize = in.readLine(v, maxLineLength, Math.max((int) 
+                        Math.min(Integer.MAX_VALUE, end - pos), maxLineLength));
                 if (newSize == 0) {
                     break;
                 }
@@ -118,7 +119,8 @@ public class GapTestRecordReader extends RecordReader<LongWritable, Text> {
                 value.append(v.getBytes(), 0, v.getLength());
                 value.append(endline.getBytes(), 0, endline.getLength());
                 
-                if (fNewValue >= this.fMinimumLimit && fNewValue < this.fMaximumLimit) {
+                if (fNewValue >= this.fMinimumLimit && fNewValue < 
+                        this.fMaximumLimit) {
                     System.out.println("break: dNewValue in range");
                     bOnRun = false;
                         break;

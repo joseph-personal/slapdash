@@ -98,9 +98,8 @@ public class PermutationTestRecordReader extends RecordReader<LongWritable, Text
         for(int i=0;i<NLINESTOPROCESS;i++){
             Text v = new Text();
             while (pos < end) {
-                newSize = in.readLine(v, maxLineLength,Math.max((int)Math.min(Integer.MAX_VALUE, end-pos),maxLineLength));
-                
-                
+                newSize = in.readLine(v, maxLineLength,Math.max((int)Math.min(
+                        Integer.MAX_VALUE, end-pos),maxLineLength));
                 value.append(v.getBytes(),0, v.getLength());
                 value.append(endline.getBytes(),0, endline.getLength());
                 if (newSize == 0) {

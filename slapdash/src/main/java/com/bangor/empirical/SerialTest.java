@@ -41,14 +41,16 @@ public class SerialTest {
          * @throws IOException
          */
         @Override
-        public void map(LongWritable lwKey, Text tValue, Context cContext) throws IOException {
+        public void map(LongWritable lwKey, Text tValue, Context cContext) 
+                throws IOException {
             
             String data = tValue.toString();
             tWord.set(data);
             try {
                 cContext.write(tWord, iwOne);
             } catch (InterruptedException ex) {
-                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, 
+                        null, ex);
             }
         }
     }
@@ -67,16 +69,17 @@ public class SerialTest {
          * @throws IOException
          */
         @Override
-        public void reduce(Text tKey, Iterable<IntWritable> itrValues, Context cContext) throws IOException {
+        public void reduce(Text tKey, Iterable<IntWritable> itrValues, 
+                Context cContext) throws IOException {
             int iSum = 0;
             for (IntWritable value : itrValues) {
                 iSum += value.get();
             }
             try {
-                //            output.collect(key, new IntWritable(sum));
                 cContext.write(tKey, new IntWritable(iSum));
             } catch (InterruptedException ex) {
-                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE,
+                        null, ex);
             }
         }
         
@@ -92,7 +95,8 @@ public class SerialTest {
      * @return The job
      * @throws Exception
      */
-    public Job test(Integer iPatternLength, String sInput, String sOutput) throws Exception {
+    public Job test(Integer iPatternLength, String sInput, String sOutput) 
+            throws Exception {
 
         Job job = new Job(new Configuration(), "serialTest");
         job.setJarByClass(SerialTest.class);
@@ -113,7 +117,6 @@ public class SerialTest {
         FileInputFormat.setInputPaths(job, new Path(sInput));
         FileOutputFormat.setOutputPath(job, new Path(sOutput));
 
-//        JobClient.runJob(conf);
         job.waitForCompletion(true);
 
         return job;

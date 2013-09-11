@@ -105,20 +105,8 @@ public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
         value.clear();
         final Text endline = new Text(":");
         int newSize = 0;
-
         boolean bOnRun = true;
         while (bOnRun) {
-
-//            //if we are at beginning of run -> append first observation to value (postponed from end of last run)
-//            if (!tBeginningOfRun.toString().isEmpty()) {
-//                //this value is to be skipped to implement chi square
-////                value.append(tBeginningOfRun.getBytes(), 0, tBeginningOfRun.getLength());
-////                value.append(endline.getBytes(), 0, endline.getLength());
-//                //set prev value for run comparisons
-//                this.dPrevVal = Double.parseDouble(tBeginningOfRun.toString());
-//                //beginning of run text set to blank
-//                tBeginningOfRun.set("");
-//            }
             if (this.bBeginningOfRun) {
                 if (this.bCalcRunsUp) {
                     this.dPrevVal = this.fMinimumValue - 1;
@@ -133,40 +121,22 @@ public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
             }
             while (pos < end) {
                 //get size of this line, read it into v
-                newSize = in.readLine(v, maxLineLength, Math.max((int) Math.min(Integer.MAX_VALUE, end - pos), maxLineLength));
+                newSize = in.readLine(v, maxLineLength, Math.max((int) 
+                        Math.min(Integer.MAX_VALUE, end - pos), maxLineLength));
                 //if line is blank, skip this iteration
                 if (newSize == 0) {
                     break;
                 }
                 //plus size onto position var
                 pos += newSize;
-
                 //get this value as double for comparison
                 String sNewValue = new String(v.getBytes());
                 double dNewValue = Double.parseDouble(sNewValue);
-
-                //valid for if we were on a run up or not
-//                boolean bWasRunUp = this.bRunUp;
-                //set bRunUp to whether or not this one is a run
-//                this.bRunUp = dNewValue >= this.dPrevVal;
-                //if we aren't on the beginning of a run, compare the two runUp booleans
-                //end this run if runType changes
-//                if (!bBeginningOfRun) {
-                System.out.println("***checking:\tdPrevVal = " + dPrevVal);
-                System.out.println("***checking:\tdNewValue = " + dNewValue);
-//                    if (this.bRunUp != bWasRunUp) {
-//                        tBeginningOfRun = v;
-//                        bOnRun = false;
-//                        bBeginningOfRun = true;
-//                        break;
-//                    }
                 if (this.bCalcRunsUp) {
                     //run ended when next value is less than this one
                     if (dNewValue <= this.dPrevVal) {
-//                            System.out.println("***\tdPrevVal = " + dPrevVal);
                         bOnRun = false;
                         setPrevValToDefault();
-//                            bBeginningOfRun = true;
                         break;
                     }
                 } else {
@@ -174,22 +144,16 @@ public class RunsTestRecordReader extends RecordReader<LongWritable, Text> {
                     if (dNewValue >= this.dPrevVal) {
                         bOnRun = false;
                         setPrevValToDefault();
-//                            bBeginningOfRun = true;
                         break;
                     }
                 }
-
-                System.out.println("***appending:\tdNewValue = " + dNewValue);
                 //append this value to value text
                 value.append(v.getBytes(), 0, v.getLength());
                 value.append(endline.getBytes(), 0, endline.getLength());
                 //change previous value for this value
                 this.dPrevVal = dNewValue;
-//                }
-                //at this stage, we are no longer at the beginning of a run
-//                bBeginningOfRun = false;
-
-                //if our newSize is smaller than the maximum we break out of the nested while loop
+                //if our newSize is smaller than the maximum we break out of 
+                //the nested while loop
                 if (newSize < maxLineLength) {
                     break;
                 }

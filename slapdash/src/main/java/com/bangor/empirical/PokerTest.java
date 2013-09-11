@@ -48,14 +48,13 @@ public class PokerTest {
          * @throws IOException
          */
         @Override
-        public void map(LongWritable lwKey, Text tValue, Context cContext) throws IOException {
+        public void map(LongWritable lwKey, Text tValue, Context cContext) 
+                throws IOException {
 
-            int iGroupSize = cContext.getConfiguration().getInt("iGroupSize", 5);
+            int iGroupSize =cContext.getConfiguration().getInt("iGroupSize", 5);
             String data = tValue.toString();
-            System.out.println("data: " + data);
 
             String[] sarrSplitData = data.split(":");
-//            float[] farrCounts = new float[iGroupSize];
             int iNumOfDifferences = iGroupSize;
 
             //get number of differences in list. don't check same two twice
@@ -66,16 +65,12 @@ public class PokerTest {
                     }
                 }
             }
-
-            System.out.println("***\tiNumOfDifferences = " + iNumOfDifferences);
             tWord.set(((Integer) iNumOfDifferences).toString());
-
-//            Integer iLengthOfSeq = data.split(":").length;
-//            tWord.set(iLengthOfSeq.toString());
             try {
                 cContext.write(tWord, iwOne);
             } catch (InterruptedException ex) {
-                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, 
+                        null, ex);
             }
         }
     }
@@ -94,16 +89,17 @@ public class PokerTest {
          * @throws IOException
          */
         @Override
-        public void reduce(Text tKey, Iterable<IntWritable> itrValues, Context cContext) throws IOException {
+        public void reduce(Text tKey, Iterable<IntWritable> itrValues, 
+                Context cContext) throws IOException {
             int iSum = 0;
             for (IntWritable value : itrValues) {
                 iSum += value.get();
             }
             try {
-                //            output.collect(key, new IntWritable(sum));
                 cContext.write(tKey, new IntWritable(iSum));
             } catch (InterruptedException ex) {
-                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, 
+                        null, ex);
             }
         }
 
@@ -146,7 +142,6 @@ public class PokerTest {
         FileInputFormat.setInputPaths(job, new Path(sInput));
         FileOutputFormat.setOutputPath(job, new Path(sOutput));
 
-//        JobClient.runJob(conf);
         job.waitForCompletion(true);
 
         return job;

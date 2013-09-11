@@ -52,17 +52,18 @@ public class RunsTest {
          * @throws IOException
          */
         @Override
-        public void map(LongWritable lwKey, Text tValue, Context cContext) throws IOException {
+        public void map(LongWritable lwKey, Text tValue, Context cContext) 
+                throws IOException {
 
             String data = tValue.toString();
-            System.out.println("data: " + data);
             Integer iLengthOfSeq = data.split(":").length;
             tWord.set(iLengthOfSeq.toString());
             if (!tWord.toString().isEmpty()) {
                 try {
                     cContext.write(tWord, iwOne);
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(SerialTest.class.getName()).log(
+                            Level.SEVERE, null, ex);
                 }
             }
         }
@@ -82,19 +83,17 @@ public class RunsTest {
          * @throws IOException
          */
         @Override
-        public void reduce(Text tKey, Iterable<IntWritable> itrValues, Context cContext) throws IOException {
+        public void reduce(Text tKey, Iterable<IntWritable> itrValues, 
+                Context cContext) throws IOException {
             int iSum = 0;
             for (IntWritable value : itrValues) {
                 iSum += value.get();
             }
             try {
-                //            output.collect(key, new IntWritable(sum));
                 cContext.write(tKey, new IntWritable(iSum));
-                System.out.println("***");
-                System.out.println("\ttKey = " + tKey);
-                System.out.println("\tiSum = " + iSum);
             } catch (InterruptedException ex) {
-                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, 
+                        null, ex);
             }
         }
 
@@ -104,7 +103,6 @@ public class RunsTest {
      * RUNS A SERIAL-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE. OUTPUT
      * IS SET TO THE OUTPUT FILE
      *
-     * @param iPatternLength the length of each pattern
      * @param sInput Input file of data.
      * @param sOutput File to output reduce data to
      * @return The job
@@ -114,7 +112,6 @@ public class RunsTest {
         Configuration conf = new Configuration();
         conf.setBoolean("bCalcRunsUp", bCalcRunsUp);
         conf.setFloat("fMinimumValue", fMinimumValue);
-        System.out.println("fMinimumValue = " + fMinimumValue);
         conf.setFloat("fMaximumValue", fMaximumValue);
         Job job = new Job(conf, "RunsTest");
         job.setJarByClass(RunsTest.class);
@@ -132,7 +129,6 @@ public class RunsTest {
         FileInputFormat.setInputPaths(job, new Path(sInput));
         FileOutputFormat.setOutputPath(job, new Path(sOutput));
 
-//        JobClient.runJob(conf);
         job.waitForCompletion(true);
 
         return job;

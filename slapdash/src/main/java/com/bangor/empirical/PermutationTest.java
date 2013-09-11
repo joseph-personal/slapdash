@@ -52,10 +52,10 @@ public class PermutationTest {
          * @throws IOException
          */
         @Override
-        public void map(LongWritable lwKey, Text tValue, Context cContext) throws IOException {
+        public void map(LongWritable lwKey, Text tValue, Context cContext)
+                throws IOException {
 
             String data = tValue.toString();
-            System.out.println("data: " + data);
 
             String[] sarrSplitData = data.split(":");
             int f = 0;
@@ -67,26 +67,23 @@ public class PermutationTest {
                 int iLargestIndex = r;
                 for (int j = 0; j <= r - 1; j++) {
                     dCurrentObsv = Double.parseDouble(sarrSplitData[j]);
-                    dLargestObsv = Double.parseDouble(sarrSplitData[iLargestIndex]);
-//                    System.out.println("***\t[" + j + "] " + dCurrentObsv + " > [" + iLargestIndex + "]" + dLargestObsv + "?");
-                    iLargestIndex = (dCurrentObsv > dLargestObsv) ? j : iLargestIndex;
-//                    System.out.println("***\tiLargestIndex = " + iLargestIndex);
+                    dLargestObsv = Double.parseDouble(
+                            sarrSplitData[iLargestIndex]);
+                    iLargestIndex = (dCurrentObsv > dLargestObsv)
+                            ? j : iLargestIndex;
                 }
+                //knuth: f <-- r . f + (s - 1)
                 f = f * (r + 1) + iLargestIndex;
-//                System.out.println("*** largestNumber = " + sarrSplitData[iLargestIndex]);
-                sarrSplitData = (String[]) UtilityArrays.swap(sarrSplitData, r, iLargestIndex);
-
+                sarrSplitData = (String[]) UtilityArrays.swap(sarrSplitData, r,
+                        iLargestIndex);
             }
-                UtilityArrays.printArray(sarrSplitData, "*** ");
 
             tWord.set(((Integer) f).toString());
-
-//            Integer iLengthOfSeq = data.split(":").length;
-//            tWord.set(iLengthOfSeq.toString());
             try {
                 cContext.write(tWord, iwOne);
             } catch (InterruptedException ex) {
-                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE,
+                        null, ex);
             }
         }
     }
@@ -105,16 +102,17 @@ public class PermutationTest {
          * @throws IOException
          */
         @Override
-        public void reduce(Text tKey, Iterable<IntWritable> itrValues, Context cContext) throws IOException {
+        public void reduce(Text tKey, Iterable<IntWritable> itrValues,
+                Context cContext) throws IOException {
             int iSum = 0;
             for (IntWritable value : itrValues) {
                 iSum += value.get();
             }
             try {
-                //            output.collect(key, new IntWritable(sum));
                 cContext.write(tKey, new IntWritable(iSum));
             } catch (InterruptedException ex) {
-                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, 
+                        null, ex);
             }
         }
 
@@ -129,8 +127,8 @@ public class PermutationTest {
     }
 
     /**
-     * RUNS A PERMUTATION-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE. OUTPUT
-     * IS SET TO THE OUTPUT FILE
+     * RUNS A PERMUTATION-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE.
+     * OUTPUT IS SET TO THE OUTPUT FILE
      *
      * @param sInput Input file of data.
      * @param sOutput File to output reduce data to
@@ -141,7 +139,7 @@ public class PermutationTest {
 
         Configuration conf = new Configuration();
         conf.setInt("iGroupSize", iGroupSize);
-        Job job = new Job(conf, "PokerTest");
+        Job job = new Job(conf, "PermTest");
         job.setJarByClass(PermutationTest.class);
 
         job.setOutputKeyClass(Text.class);
@@ -157,7 +155,6 @@ public class PermutationTest {
         FileInputFormat.setInputPaths(job, new Path(sInput));
         FileOutputFormat.setOutputPath(job, new Path(sOutput));
 
-//        JobClient.runJob(conf);
         job.waitForCompletion(true);
 
         return job;

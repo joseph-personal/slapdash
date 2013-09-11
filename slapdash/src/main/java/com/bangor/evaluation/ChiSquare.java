@@ -93,7 +93,8 @@ public class ChiSquare {
      * @param darrExpectedCounts - the expected values of the test
      * @param dSignificance - the significance (or confidence) of the test
      */
-    public ChiSquare(long[] larrObservedCounts, double[] darrExpectedCounts, double dSignificance) {
+    public ChiSquare(long[] larrObservedCounts, double[] darrExpectedCounts, 
+            double dSignificance) {
         this.larrObservedCounts = larrObservedCounts;
         this.darrExpectedCounts = darrExpectedCounts;
         this.dSignificance = dSignificance;
@@ -104,25 +105,31 @@ public class ChiSquare {
      *
      * EVALUATES CHI SQUARE BASED ON GETS/SETS OF THIS CLASS
      *
-     * @return - whether the values pass or fail at this significance
-     * @throws IllegalArgumentException - from ChiSquareTest
-     * @throws MathException - from ChiSquareTest
-     * @throws ParameterNotValidException - if no global vars have not been set
+     * @return whether the values pass or fail at this significance
+     * @throws IllegalArgumentException from ChiSquareTest
+     * @throws MathException from ChiSquareTest
+     * @throws ParameterNotValidException if no global vars have not been set
+     * @throws ArrayLengthNotEqualException if arrays are not equal in length
      */
-    public boolean evaluateChiSquare() throws IllegalArgumentException, MathException,
-            ParameterNotValidException, ArrayLengthNotEqualException {
-        if (dSignificance != null && darrExpectedCounts != null && larrObservedCounts != null) {
+    public boolean evaluateChiSquare() throws IllegalArgumentException, 
+            MathException, ParameterNotValidException, 
+            ArrayLengthNotEqualException {
+        if (dSignificance != null && darrExpectedCounts != null && 
+                larrObservedCounts != null) {
             if (darrExpectedCounts.length == larrObservedCounts.length) {
-                return chiSquareTest.chiSquareTest(darrExpectedCounts, larrObservedCounts, dSignificance);
+                return chiSquareTest.chiSquareTest(darrExpectedCounts, 
+                        larrObservedCounts, dSignificance);
             } else {
-                throw new ArrayLengthNotEqualException("Expected and Observed arrays "
-                        + "are not of equal size");
+                throw new ArrayLengthNotEqualException(""
+                        + "Expected and Observed arrays are not of equal size");
             }
         } else {
-            throw new ParameterNotValidException("Global Expected & Observed Arrays "
-                    + "and significance value are null. Either use the constructor "
-                    + "to set these values or use setDoubleArr_expectedCounts(), "
-                    + "setLingArr_observedCounts() & setDouble_significance() first.");
+            throw new ParameterNotValidException("Global Expected & Observed "
+                    + "Arrays and significance value are null. Either use the "
+                    + "constructor to set these values or use "
+                    + "setDoubleArr_expectedCounts(), "
+                    + "setLingArr_observedCounts() & setDouble_significance() "
+                    + "first.");
         }
     }
 

@@ -42,7 +42,8 @@ public class FrequencyTest {
          * @throws IOException
          */
         @Override
-        public void map(LongWritable lwKey, Text tValue, Context cContext) throws IOException {
+        public void map(LongWritable lwKey, Text tValue, Context cContext)
+                throws IOException {
 
             String line = tValue.toString();
             cContext.getConfiguration().getStrings(line);
@@ -52,10 +53,10 @@ public class FrequencyTest {
                 if (string.matches("-?\\d+(\\.\\d+)?")) {
                     tWord.set(string);
                     try {
-                        //                    output.collect(word, one);
                         cContext.write(tWord, iwOne);
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(FrequencyTest.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(FrequencyTest.class.getName()).log(
+                                Level.SEVERE, null, ex);
                     }
                 }
             }
@@ -65,7 +66,8 @@ public class FrequencyTest {
     /**
      * This is the Reduce class for this test
      */
-    public static class Reduce extends Reducer<Text, IntWritable, Text, IntWritable> {
+    public static class Reduce extends Reducer<Text, IntWritable, Text, 
+            IntWritable> {
 
         /**
          * Reduce the key,value pair into groups.
@@ -76,23 +78,24 @@ public class FrequencyTest {
          * @throws IOException
          */
         @Override
-        public void reduce(Text tKey, Iterable<IntWritable> itrValues, Context cContext) throws IOException {
+        public void reduce(Text tKey, Iterable<IntWritable> itrValues,
+                Context cContext) throws IOException {
             int iSum = 0;
             for (IntWritable value : itrValues) {
                 iSum += value.get();
             }
             try {
-                //            output.collect(key, new IntWritable(sum));
                 cContext.write(tKey, new IntWritable(iSum));
             } catch (InterruptedException ex) {
-                Logger.getLogger(Reduce.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Reduce.class.getName()).log(Level.SEVERE,
+                        null, ex);
             }
         }
     }
 
     /**
-     * RUNS A THE FREQUENCY-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE. OUTPUT
-     * IS SET TO THE OUTPUT FILE
+     * RUNS A THE FREQUENCY-BASED MAP/REDUCE ON THE DATA INSIDE THE INPUT FILE.
+     * OUTPUT IS SET TO THE OUTPUT FILE
      *
      * @param sInput Input file of data.
      * @param sOutput file to output reduce data to
@@ -117,7 +120,6 @@ public class FrequencyTest {
         FileInputFormat.setInputPaths(job, new Path(sInput));
         FileOutputFormat.setOutputPath(job, new Path(sOutput));
 
-//        JobClient.runJob(conf);
         boolean jobSuccessful = job.waitForCompletion(true);
 
         if (!jobSuccessful) {

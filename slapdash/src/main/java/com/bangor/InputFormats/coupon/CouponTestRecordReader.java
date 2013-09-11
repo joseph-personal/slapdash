@@ -106,8 +106,8 @@ public class CouponTestRecordReader extends RecordReader<LongWritable, Text> {
         final Text endline = new Text(":");
         int newSize = 0;
 
-        int iSizeOfArray = (int) (this.fMaximumLimit - (this.fMinimumLimit - 1)) * (this.iDecimalPlace + 1);
-        System.out.println("iDecimalPlace = " + iDecimalPlace);
+        int iSizeOfArray = (int) (this.fMaximumLimit - (this.fMinimumLimit - 1)) 
+                * (this.iDecimalPlace + 1);
         Float[] darrOccurences = new Float[iSizeOfArray];
         Arrays.fill(darrOccurences, fMinimumLimit - 1);
         int i = 0;
@@ -120,7 +120,9 @@ public class CouponTestRecordReader extends RecordReader<LongWritable, Text> {
                 break;
             }
             while (pos < end) {
-                newSize = in.readLine(v, maxLineLength, Math.max((int) Math.min(Integer.MAX_VALUE, end - pos), maxLineLength));
+                newSize = in.readLine(v, maxLineLength, 
+                        Math.max((int) Math.min(Integer.MAX_VALUE, end - pos), 
+                        maxLineLength));
                 if (newSize == 0) {
                     break;
                 }
@@ -134,26 +136,24 @@ public class CouponTestRecordReader extends RecordReader<LongWritable, Text> {
                 //add this value to array and segment if it isn't in array yet
                 if (!UtilityArrays.contains(darrOccurences, fNewValue)) {
                     try {
-                        System.out.println("Putting value in array: " + fNewValue);
 
                         darrOccurences[i] = fNewValue;
-                        //end of this segment if darrOccurences no longer contains dMinNumber-1
-                        if (UtilityArrays.contains(darrOccurences, fMinimumLimit - 1)) {
-                            System.out.println("have whole collection. \n\tlast to process: " + fNewValue);
+                        //end of this segment if darrOccurences no longer 
+                        //contains dMinNumber-1
+                        if (UtilityArrays.contains(darrOccurences, 
+                                fMinimumLimit - 1)) {
                             bOnRun = false;
                         }
                     } catch (ArrayIndexOutOfBoundsException ex) {
-                        System.err.println("***\t Trying to access: " + i + "\n***\tlength: " + iSizeOfArray);
-                        Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(SerialTest.class.getName()).log(
+                                Level.SEVERE, null, ex);
                     }
 
                     i++;
                     break;
                 }
-                System.out.println("Value already in array: " + fNewValue);
 
                 if (newSize < maxLineLength) {
-                    System.out.println("break: newSize < maxLineLength");
                     break;
                 }
             }

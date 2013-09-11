@@ -1,8 +1,6 @@
 package com.bangor.empirical;
 
 import com.bangor.InputFormats.coupon.CouponTestInputFormat;
-import com.bangor.InputFormats.gap.GapTestInputFormat;
-import com.bangor.InputFormats.runs.RunsTestInputFormat;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,16 +52,17 @@ public class CouponTest {
          * @throws IOException
          */
         @Override
-        public void map(LongWritable lwKey, Text tValue, Context cContext) throws IOException {
+        public void map(LongWritable lwKey, Text tValue, Context cContext) 
+                throws IOException {
 
             String data = tValue.toString();
-            System.out.println("data: " + data);
             Integer iLengthOfSeq = data.split(":").length;
             tWord.set(iLengthOfSeq.toString());
             try {
                 cContext.write(tWord, iwOne);
             } catch (InterruptedException ex) {
-                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, 
+                        null, ex);
             }
         }
     }
@@ -71,7 +70,8 @@ public class CouponTest {
     /**
      * This is the Reduce class for this test
      */
-    public static class Reduce extends Reducer<Text, IntWritable, Text, IntWritable> {
+    public static class Reduce extends Reducer<Text, IntWritable, Text, 
+            IntWritable> {
 
         /**
          * Reduce the key,value pair into groups.
@@ -82,16 +82,17 @@ public class CouponTest {
          * @throws IOException
          */
         @Override
-        public void reduce(Text tKey, Iterable<IntWritable> itrValues, Context cContext) throws IOException {
+        public void reduce(Text tKey, Iterable<IntWritable> itrValues, 
+                Context cContext) throws IOException {
             int iSum = 0;
             for (IntWritable value : itrValues) {
                 iSum += value.get();
             }
             try {
-                //            output.collect(key, new IntWritable(sum));
                 cContext.write(tKey, new IntWritable(iSum));
             } catch (InterruptedException ex) {
-                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(SerialTest.class.getName()).log(Level.SEVERE,
+                        null, ex);
             }
         }
 
@@ -128,7 +129,6 @@ public class CouponTest {
         FileInputFormat.setInputPaths(job, new Path(sInput));
         FileOutputFormat.setOutputPath(job, new Path(sOutput));
 
-//        JobClient.runJob(conf);
         job.waitForCompletion(true);
 
         return job;

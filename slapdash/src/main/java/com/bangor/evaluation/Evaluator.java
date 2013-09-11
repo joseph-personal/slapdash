@@ -1,6 +1,5 @@
 package com.bangor.evaluation;
 
-import com.bangor.empirical.FrequencyTest;
 import com.bangor.exception.ArrayLengthNotEqualException;
 import com.bangor.exception.ParameterNotValidException;
 import java.io.BufferedReader;
@@ -81,19 +80,17 @@ public class Evaluator {
      * @throws ParameterNotValidException thrown if this.sEvaluationMethod is
      * now supported
      */
-    public boolean evaluate() throws IllegalArgumentException, MathException, ParameterNotValidException, ArrayLengthNotEqualException {
+    public boolean evaluate() throws IllegalArgumentException, MathException, 
+            ParameterNotValidException, ArrayLengthNotEqualException {
 
-//        System.out.println("Expected");
-//        printDoubleArray(doubleArr_expectedCount);
-//        System.out.println("Observed");
-//        printLongArray(longArr_observedCount);
         if (sEvaluationMethod.equalsIgnoreCase("-Ch")) {
             ChiSquare chiSquareTest = new ChiSquare(larrObservedCount,
                     darrExpectedCount, dSignificance);
             return chiSquareTest.evaluateChiSquare();
         }
 
-        throw new ParameterNotValidException("Evaluation method supplied is not supported");
+        throw new ParameterNotValidException(
+                "Evaluation method supplied is not supported");
     }
 
     /**
@@ -104,7 +101,8 @@ public class Evaluator {
      * @return a long array holding all catagories and the amount of times they
      * occur. Including categories which did not occur at all
      */
-    private long[] parseCategoryArrayFromFile(String string_filePath, int int_numOfCategories) {
+    private long[] parseCategoryArrayFromFile(String string_filePath, 
+            int int_numOfCategories) {
 
         long[] doubleArr_observedCategories = new long[int_numOfCategories];
         BufferedReader br = null;
@@ -116,27 +114,32 @@ public class Evaluator {
             while ((sCurrentLine = br.readLine()) != null) {
                 String[] splitCurrentLine = sCurrentLine.split("\\t");
 
-                int catNum = getCategoryIndex(splitCurrentLine[0].trim(), this.iRange, this.iDegree);
-//                System.out.println("***\t\tcatNum = " + catNum);
-//                int catNum = Integer.parseInt("gfdhfdgdfgd");
-                int catAmount = Integer.parseInt(splitCurrentLine[splitCurrentLine.length - 1].trim());
+                int catNum = getCategoryIndex(splitCurrentLine[0].trim(), 
+                        this.iRange, this.iDegree);
+                int catAmount = Integer.parseInt(
+                        splitCurrentLine[splitCurrentLine.length - 1].trim());
 
                 try {
                     doubleArr_observedCategories[catNum] = catAmount;
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    System.out.println("***\t\tArrayIndexOutOfBoundsException : " + doubleArr_observedCategories.length + " : " + catNum);
-                    e.printStackTrace();
+                    Logger.getLogger(Evaluator.class.getName()).log(
+                                Level.SEVERE, null, 
+                            "***\t\tArrayIndexOutOfBoundsException : " + 
+                            doubleArr_observedCategories.length + " : " + 
+                            catNum + "\n" + e);
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getLogger(Evaluator.class.getName()).log(
+                                Level.SEVERE, null, e);
         } finally {
             try {
                 if (br != null) {
                     br.close();
                 }
             } catch (IOException ex) {
-                ex.printStackTrace();
+                Logger.getLogger(Evaluator.class.getName()).log(
+                                Level.SEVERE, null, ex);
             }
         }
 
@@ -182,7 +185,8 @@ public class Evaluator {
             String[] sarrSplitPatternColon = pattern.split(":");
 
             for (int i = sarrSplitPatternColon.length - 1; i > -1; i--) {
-                int thisObs = (int) (Double.parseDouble(sarrSplitPatternColon[i]) * (double) (iDegree));
+                int thisObs = (int) (Double.parseDouble(
+                        sarrSplitPatternColon[i]) * (double) (iDegree));
                 int parentNum = 1;
                 if (i != 0) {
                     parentNum = (int) Math.pow(iRange, i);
@@ -190,7 +194,8 @@ public class Evaluator {
                 iCategoryIndex += thisObs * (parentNum);
             }
         } else {
-            iCategoryIndex = (int) (Double.parseDouble(pattern) * (double) iDegree - 1);
+            iCategoryIndex = (int) (Double.parseDouble(pattern) * 
+                    (double) iDegree - 1);
         }
         return iCategoryIndex;
     }
