@@ -106,32 +106,33 @@ public class Evaluator {
 
         long[] doubleArr_observedCategories = new long[int_numOfCategories];
         BufferedReader br = null;
-
+        
         try {
             String sCurrentLine;
             br = new BufferedReader(new FileReader(string_filePath));
 
             while ((sCurrentLine = br.readLine()) != null) {
                 String[] splitCurrentLine = sCurrentLine.split("\\t");
-
                 int catNum = getCategoryIndex(splitCurrentLine[0].trim(), 
                         this.iRange, this.iDegree);
                 int catAmount = Integer.parseInt(
                         splitCurrentLine[splitCurrentLine.length - 1].trim());
-
+                if(catAmount < 0){
+                    System.out.println("catAmount = " + catAmount);
+                }
                 try {
                     doubleArr_observedCategories[catNum] = catAmount;
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    Logger.getLogger(Evaluator.class.getName()).log(
-                                Level.SEVERE, null, 
-                            "***\t\tArrayIndexOutOfBoundsException : " + 
+                    System.err.println("***\t\tArrayIndexOutOfBoundsException : " + 
                             doubleArr_observedCategories.length + " : " + 
-                            catNum + "\n" + e);
+                            catNum + "\n");
+                    Logger.getLogger(Evaluator.class.getName()).log(
+                                Level.SEVERE, null, e);
                 }
             }
         } catch (IOException e) {
             Logger.getLogger(Evaluator.class.getName()).log(
-                                Level.SEVERE, null, e);
+                                Level.SEVERE, null, "IOException\n"+e);
         } finally {
             try {
                 if (br != null) {
@@ -139,10 +140,9 @@ public class Evaluator {
                 }
             } catch (IOException ex) {
                 Logger.getLogger(Evaluator.class.getName()).log(
-                                Level.SEVERE, null, ex);
+                                Level.SEVERE, null, "IOException\n"+ex);
             }
         }
-
         return doubleArr_observedCategories;
     }
 
@@ -174,7 +174,7 @@ public class Evaluator {
      * @param pattern pattern to calculate
      * @param iRange range of possible options (e.g. 0:50 would be iRange=51)
      * @param iDegree the degree point of the options (e.g. 0.1 would be
-     * iDegree=10; 0.11 would be iDegree=100)
+     * iDegree=1; 0.11 would be iDegree=2)
      * @return returns the category index for this particular pattern
      */
     private int getCategoryIndex(String pattern, int iRange, int iDegree) {
@@ -186,7 +186,7 @@ public class Evaluator {
 
             for (int i = sarrSplitPatternColon.length - 1; i > -1; i--) {
                 int thisObs = (int) (Double.parseDouble(
-                        sarrSplitPatternColon[i]) * (double) (iDegree));
+                        sarrSplitPatternColon[i]) * Math.pow(1, iDegree));
                 int parentNum = 1;
                 if (i != 0) {
                     parentNum = (int) Math.pow(iRange, i);
@@ -195,7 +195,8 @@ public class Evaluator {
             }
         } else {
             iCategoryIndex = (int) (Double.parseDouble(pattern) * 
-                    (double) iDegree - 1);
+                    Math.pow(1, iDegree));
+            //iDegree * 10
         }
         return iCategoryIndex;
     }

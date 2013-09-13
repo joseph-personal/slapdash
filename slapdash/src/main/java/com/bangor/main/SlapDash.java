@@ -82,13 +82,13 @@ public class SlapDash {
         } else if (test.equalsIgnoreCase("-G")) {
 
             int iSequenceLength = Integer.parseInt(args[4]);
-            float fMinOfGap = Float.parseFloat(args[4]);
-            float fMaxOfGap = Float.parseFloat(args[5]);
+            float fMinOfGap = Float.parseFloat(args[5]);
+            float fMaxOfGap = Float.parseFloat(args[6]);
             //GET REST OF PARAMETER ARGUMENTS
-            String sEvaluation = args[6];
-            double dSignificance = Double.parseDouble(args[7]);
-            String sInput = args[8];
-            String sOutput = args[9];
+            String sEvaluation = args[7];
+            double dSignificance = Double.parseDouble(args[8]);
+            String sInput = args[9];
+            String sOutput = args[10];
 
             boolean bTestPasses = performGapsTest(iDecimalPlaces, iSequenceLength, fMinimumValue, fMaximumValue, fMinOfGap, fMaxOfGap, sEvaluation, dSignificance, sInput, sOutput);
             System.err.println("Pass: " + bTestPasses);
@@ -106,13 +106,13 @@ public class SlapDash {
         } else if (test.equalsIgnoreCase("-C")) {
 
             //GET REST OF PARAMETER ARGUMENTS
-            int iLength = Integer.parseInt(args[4]);
+            int iSequenceLength = Integer.parseInt(args[4]);
             String sEvaluation = args[5];
             double dSignificance = Double.parseDouble(args[6]);
             String sInput = args[7];
             String sOutput = args[8];
 
-            boolean bTestPasses = performCouponTest(iDecimalPlaces, fMinimumValue, fMaximumValue, iLength, sEvaluation, dSignificance, sInput, sOutput);
+            boolean bTestPasses = performCouponTest(iDecimalPlaces, fMinimumValue, fMaximumValue, iSequenceLength, sEvaluation, dSignificance, sInput, sOutput);
             System.err.println("Pass: " + bTestPasses);
         } else if (test.equalsIgnoreCase("-pm")) {
 
@@ -146,10 +146,9 @@ public class SlapDash {
     private boolean performFrequencyTest(int iDecimalPlaces,
             float fMinimumLimit, float fMaximumLimit, String sEvaluation,
             double dSignificance, String sInput, String sOutput)
-            throws Exception {
+            throws Exception {;
 
-        int iRange1 = (int) ((fMaximumLimit * (iDecimalPlaces + 1))
-                - (fMinimumLimit * (iDecimalPlaces + 1)));
+        int iRange1 = (int) (Math.pow(1, iDecimalPlaces)) * (int) (fMaximumLimit - fMinimumLimit) + 1;
         FrequencyTest fTest = new FrequencyTest();
         Job conf = fTest.test(sInput, sOutput);
 
@@ -162,7 +161,7 @@ public class SlapDash {
             dArrExpected[i] = 1.0;
         }
         Evaluator evaluator = new Evaluator(sEvaluation, sLocalOutput,
-                dArrExpected, dSignificance, iRange1, iDecimalPlaces + 1);
+                dArrExpected, dSignificance, iRange1, iDecimalPlaces);
 
         return evaluator.evaluate();
     }
@@ -184,33 +183,34 @@ public class SlapDash {
      * @return boolean on whether sequence has passed or failed
      * @throws Exception
      */
-    private boolean performSerialTest(int iDecimalPlaces, float fMinimumLimit, 
-            float fMaximumLimit, int iGroupSize, String sEvaluation, 
-            double dSignificance, String sInput, String sOutput) 
+    private boolean performSerialTest(int iDecimalPlaces, float fMinimumLimit,
+            float fMaximumLimit, int iGroupSize, String sEvaluation,
+            double dSignificance, String sInput, String sOutput)
             throws Exception {
 
-        int iRange1 = (int) ((fMaximumLimit * (iDecimalPlaces + 1)) - 
-                (fMinimumLimit * (iDecimalPlaces + 1)));
+//        int iRange1 = (int) ((fMaximumLimit * (iDecimalPlaces + 1)) - 
+//                (fMinimumLimit * (iDecimalPlaces + 1)));
+        int iRange1 = (int) (Math.pow(1, iDecimalPlaces)) * (int) (fMaximumLimit - fMinimumLimit) + 1;
 
-        if (isGroupSizePossible(iRange1, iGroupSize)) {
-            SerialTest sTest = new SerialTest();
-            Job conf = sTest.test(iGroupSize, sInput, sOutput);
+//        if (isGroupSizePossible(iRange1, iGroupSize)) {
+        SerialTest sTest = new SerialTest();
+        Job conf = sTest.test(iGroupSize, sInput, sOutput);
 
-            String localOutput = UtilityHadoop.getFileFromHDFS(sOutput + 
-                    File.separator + sFileName, conf);
-            int numOfCombinations = UtilityMath.getCombinationAmount(iRange1, 
-                    iGroupSize, true, true).intValue();
-            double[] expected = new double[numOfCombinations];
-            for (int i = 0; i < expected.length; i++) {
-                expected[i] = 1.0;
-            }
-            Evaluator evaluator = new Evaluator(sEvaluation, localOutput, 
-                    expected, dSignificance, iRange1, iDecimalPlaces + 1);
-
-            return evaluator.evaluate();
+        String localOutput = UtilityHadoop.getFileFromHDFS(sOutput
+                + File.separator + sFileName, conf);
+        int numOfCombinations = UtilityMath.getCombinationAmount(iRange1,
+                iGroupSize, true, true).intValue();
+        double[] expected = new double[numOfCombinations];
+        for (int i = 0; i < expected.length; i++) {
+            expected[i] = 1.0;
         }
+        Evaluator evaluator = new Evaluator(sEvaluation, localOutput,
+                expected, dSignificance, iRange1, iDecimalPlaces + 1);
 
-        return false;
+        return evaluator.evaluate();
+//        }
+
+//        return false;
     }
 
     /**
@@ -234,8 +234,9 @@ public class SlapDash {
             String sEvaluation, double dSignificance, String sInput,
             String sOutput) throws Exception {
 
-        int iRange1 = (int) ((fMaximumLimit * (iDecimalPlaces + 1))
-                - (fMinimumLimit * (iDecimalPlaces + 1)));
+//        int iRange1 = (int) ((fMaximumLimit * (iDecimalPlaces + 1))
+//                - (fMinimumLimit * (iDecimalPlaces + 1)));
+        int iRange1 = (int) (Math.pow(1, iDecimalPlaces)) * (int) (fMaximumLimit - fMinimumLimit) + 1;
         RunsTest rTest = new RunsTest(bCalcRunUp, fMinimumLimit, fMaximumLimit);
         Job conf = rTest.test(sInput, sOutput);
 
@@ -272,8 +273,9 @@ public class SlapDash {
             float fMaxOfGapTest, String sEvaluation, double dSignificance,
             String sInput, String sOutput) throws Exception {
 
-        int iRange1 = (int) ((fMaximumLimit * (iDecimalPlaces + 1))
-                - (fMinimumLimit * (iDecimalPlaces + 1)));
+//        int iRange1 = (int) ((fMaximumLimit * (iDecimalPlaces + 1))
+//                - (fMinimumLimit * (iDecimalPlaces + 1)));
+        int iRange1 = (int) (Math.pow(1, iDecimalPlaces)) * (int) (fMaximumLimit - fMinimumLimit) + 1;
         GapTest gTest = new GapTest(fMinOfGapTest, fMaxOfGapTest);
         Job conf = gTest.test(sInput, sOutput);
 
@@ -286,6 +288,16 @@ public class SlapDash {
         for (int i = 1; i < expected.length; i++) {
             double first = expected[0] * (1 - expected[0]);
             expected[i] = Math.pow(first, i);
+//            if(i == 228){
+//                System.out.println("first = " + first);
+//                System.out.println("expected[228] = " + expected[i]);
+//            }
+            Double d = new Double(1);
+
+            //TODO: THIS WILL REDUCE ACCURACY OF OVERALL TOOL
+            if (expected[i] == 0) {
+                expected[i] = Double.MIN_VALUE;
+            }
         }
         Evaluator evaluator = new Evaluator(sEvaluation, localOutput, expected,
                 dSignificance, iRange1, iDecimalPlaces + 1);
@@ -310,36 +322,43 @@ public class SlapDash {
      * @return boolean on whether sequence has passed or failed
      * @throws Exception
      */
-    private boolean performPokerTest(int iDecimalPlaces, float fMinimumLimit, 
-            float fMaximumLimit, int iGroupSize, String sEvaluation, 
-            double dSignificance, String sInput, String sOutput) 
+    private boolean performPokerTest(int iDecimalPlaces, float fMinimumLimit,
+            float fMaximumLimit, int iGroupSize, String sEvaluation,
+            double dSignificance, String sInput, String sOutput)
             throws Exception {
 
-        int iRange1 = (int) ((fMaximumLimit * (iDecimalPlaces + 1)) - 
-                (fMinimumLimit * (iDecimalPlaces + 1)));
+//        int iRange1 = (int) ((fMaximumLimit * (iDecimalPlaces + 1)) - 
+//                (fMinimumLimit * (iDecimalPlaces + 1)));
+        int iRange1 = (int) (Math.pow(1, iDecimalPlaces)) * (int) (fMaximumLimit - fMinimumLimit) + 1;
 
         if (isGroupSizePossible(iRange1, iGroupSize)) {
             PokerTest pTest = new PokerTest(iGroupSize);
             Job conf = pTest.test(sInput, sOutput);
 
-            String localOutput = UtilityHadoop.getFileFromHDFS(sOutput + 
-                    File.separator + sFileName, conf);
+            String localOutput = UtilityHadoop.getFileFromHDFS(sOutput
+                    + File.separator + sFileName, conf);
 
-            double[] expected = new double[iGroupSize];
+            //THIS MUST BE +1 TO ACCOUNT FOR 0
+            double[] expected = new double[iGroupSize + 1];
             for (int i = 0; i < expected.length; i++) {
-                double dFactLim = UtilityMath.factorialLimit(iRange1, 
+                double dFactLim = UtilityMath.factorialLimit(iRange1,
                         iRange1 - (i + 1) + 1).doubleValue();
 
                 double dPow = Math.pow(iRange1, iGroupSize);
 
                 double dDiv = dFactLim / dPow;
 
-                double dSterlingVal = UtilityMath.SterlingNumber(iGroupSize, 
+                double dSterlingVal = UtilityMath.SterlingNumber(iGroupSize,
                         i + 1).doubleValue();
 
                 expected[i] = dDiv * dSterlingVal;
+
+                //TODO: THIS WILL REDUCE ACCURACY OF OVERALL TOOL
+                if (expected[i] == 0) {
+                    expected[i] = Double.MIN_VALUE;
+                }
             }
-            Evaluator evaluator = new Evaluator(sEvaluation, localOutput, 
+            Evaluator evaluator = new Evaluator(sEvaluation, localOutput,
                     expected, dSignificance, iRange1, iDecimalPlaces + 1);
 
             return evaluator.evaluate();
@@ -351,7 +370,7 @@ public class SlapDash {
      * Handler for Coupon Test. This test is non-overlapping
      *
      * @param iDecimalPlaces the degree to which a number can go
-     * @param iLength the length of the pattern
+     * @param iSequenceLength the length of the
      * @param sEvaluation the evaluation method to be used
      * @param dSignificance the significance level to use in evaluation
      * @param sInput the hadoop input file
@@ -360,12 +379,12 @@ public class SlapDash {
      * @throws Exception From test (JobConf)
      */
     private boolean performCouponTest(int iDecimalPlaces, float fMinimumLimit,
-            float fMaximumLimit, int iLength, String sEvaluation,
+            float fMaximumLimit, int iSequenceLength, String sEvaluation,
             double dSignificance, String sInput, String sOutput)
             throws Exception {
-
-        int iRange1 = (int) ((fMaximumLimit * (iDecimalPlaces + 1))
-                - (fMinimumLimit * (iDecimalPlaces + 1)));
+//        int iRange1 = (int) ((fMaximumLimit * (iDecimalPlaces + 1))
+//                - (fMinimumLimit * (iDecimalPlaces + 1)));
+        int iRange1 = (int) (Math.pow(1, iDecimalPlaces)) * (int) (fMaximumLimit - fMinimumLimit) + 1;
         CouponTest cTest = new CouponTest(fMinimumLimit, fMaximumLimit,
                 iDecimalPlaces);
         Job conf = cTest.test(sInput, sOutput);
@@ -373,7 +392,7 @@ public class SlapDash {
         String localOutput = UtilityHadoop.getFileFromHDFS(sOutput
                 + File.separator + sFileName, conf);
 
-        double[] expected = new double[iLength];
+        double[] expected = new double[iSequenceLength];
         for (int i = 0; i < expected.length; i++) {
             //writing code for pr, not sure if pt comes into this version. 
             //see Knuths the art of computer programming
@@ -387,6 +406,11 @@ public class SlapDash {
             double dProbI = (lRangeFactorial / dRangePowerI) * dStirlingNum;
 
             expected[i] = dProbI;
+
+            //TODO: THIS WILL REDUCE ACCURACY OF OVERALL TOOL
+            if (expected[i] == 0) {
+                expected[i] = Double.MIN_VALUE;
+            }
         }
         Evaluator evaluator = new Evaluator(sEvaluation, localOutput, expected,
                 dSignificance, iRange1, iDecimalPlaces + 1);
@@ -411,30 +435,36 @@ public class SlapDash {
      * @return boolean on whether sequence has passed or failed
      * @throws Exception
      */
-    private boolean performPermutationTest(int iDecimalPlaces, 
-            float fMinimumLimit, float fMaximumLimit, int iGroupSize, 
-            String sEvaluation, double dSignificance, String sInput, 
+    private boolean performPermutationTest(int iDecimalPlaces,
+            float fMinimumLimit, float fMaximumLimit, int iGroupSize,
+            String sEvaluation, double dSignificance, String sInput,
             String sOutput) throws Exception {
 
-        int iRange1 = (int) ((fMaximumLimit * (iDecimalPlaces + 1)) - 
-                (fMinimumLimit * (iDecimalPlaces + 1)));
+//        int iRange1 = (int) ((fMaximumLimit * (iDecimalPlaces + 1)) - 
+//                (fMinimumLimit * (iDecimalPlaces + 1)));
+        int iRange1 = (int) (Math.pow(1, iDecimalPlaces)) * (int) (fMaximumLimit - fMinimumLimit) + 1;
 
         if (isGroupSizePossible(iRange1, iGroupSize)) {
 
             PermutationTest pTest = new PermutationTest(iGroupSize);
             Job conf = pTest.test(sInput, sOutput);
 
-            String localOutput = UtilityHadoop.getFileFromHDFS(sOutput + 
-                    File.separator + sFileName, conf);
+            String localOutput = UtilityHadoop.getFileFromHDFS(sOutput
+                    + File.separator + sFileName, conf);
 
-            int iGroupSizeFactorial = 
-                    UtilityMath.factorial(iGroupSize).intValue();
+            int iGroupSizeFactorial
+                    = UtilityMath.factorial(iGroupSize).intValue();
             double[] expected = new double[iGroupSizeFactorial];
             for (int i = 0; i < expected.length; i++) {
                 //each permutation is equally likely
                 expected[i] = 1.0 / (double) iGroupSizeFactorial;
+
+                //TODO: THIS WILL REDUCE ACCURACY OF OVERALL TOOL
+                if (expected[i] == 0) {
+                    expected[i] = Double.MIN_VALUE;
+                }
             }
-            Evaluator evaluator = new Evaluator(sEvaluation, localOutput, 
+            Evaluator evaluator = new Evaluator(sEvaluation, localOutput,
                     expected, dSignificance, iRange1, iDecimalPlaces + 1);
 
             return evaluator.evaluate();
