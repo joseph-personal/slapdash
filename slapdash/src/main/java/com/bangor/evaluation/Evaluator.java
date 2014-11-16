@@ -2,12 +2,13 @@ package com.bangor.evaluation;
 
 import com.bangor.exception.ArrayLengthNotEqualException;
 import com.bangor.exception.ParameterNotValidException;
+import org.apache.commons.math.MathException;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.math.MathException;
 
 /**
  *
@@ -75,12 +76,11 @@ public class Evaluator {
      *
      * @return boolean stating whether or not these categories pass
      * @throws IllegalArgumentException from chiSquareTest
-     * @throws MathException from chiSquareTest
      * @throws ArrayLengthNotEqualException from chiSquareTest
      * @throws ParameterNotValidException thrown if this.sEvaluationMethod is
      * now supported
      */
-    public boolean evaluate() throws IllegalArgumentException, MathException, 
+    public boolean evaluate() throws IllegalArgumentException, MathException,
             ParameterNotValidException, ArrayLengthNotEqualException {
 
         if (sEvaluationMethod.equalsIgnoreCase("-Ch")) {
