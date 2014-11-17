@@ -83,7 +83,7 @@ public class Evaluator {
     public boolean evaluate() throws IllegalArgumentException, MathException,
             ParameterNotValidException, ArrayLengthNotEqualException {
 
-        if (sEvaluationMethod.equalsIgnoreCase("-Ch")) {
+        if (sEvaluationMethod.equalsIgnoreCase("ch")) {
             ChiSquare chiSquareTest = new ChiSquare(larrObservedCount,
                     darrExpectedCount, dSignificance);
             return chiSquareTest.evaluateChiSquare();
